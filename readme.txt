@@ -13,23 +13,30 @@
                                                   
                                                   
 emonBase (emonTx base station) to post data to emoncms or Pachube 
-**************************
+*********************************************************************
 
 Builds on JeeLabs and EtherCard software. Thanks to JCW and Andrew Lindsay
 -----------------------------------------------
 To make this work you will need:
-Arduino 1.0:				http://arduino.googlecode.com/files/arduino-1.0-linux.tgz
+Arduino 1.0:				http://arduino.cc/en/Main/Software
 EtherCard development branch: 		https://github.com/jcw/ethercard/tarball/development
 JeeLib: 				https://github.com/jcw/jeelib
 
 -----------------------------------------------
-The is a collaboration between OpenEnergyMonitor.org and Nanode.eu (Ken Boak and London Hackspace) 
+The is a collaboration between OpenEnergyMonitor.org and Nanode.eu (Ken Boak) 
 
-This repo contains the firmware to allow a Nanodes equipped with a RFM12B breakout board or NanodeRF's with RFM12 onboard to received monitoring data from the emonTx and post the data online to emoncms. The Nanode also serves a local webpage with a copy of the last received data packet. 
+This repo contains the firmware to allow a Nanodes equipped with a RFM12B breakout board or NanodeRF's with RFM12B onboard to received monitoring data from the emonTx and post the data online to emoncms.
+
+The same frequency RFM12B's should be used on both the emonTx and NanodeRF, the frequency of the modules must also be set in the sketch (line 25) 
+
+The Nanode also serves a local webpage with a copy of the last received data packet. 
 
 Older version of the Nanode can be used with certain changes, see: http://openenergymonitor.org/emon/node/143
 
+For Older emonBase/NanodeRF examples which use the EtherShield library (now un-supported) see: https://github.com/openenergymonitor/NanodeRF_ethershield
+
 Links:
-emonTx: openenergymonitor.org/emon/emontx
-Nanode: http://wiki.hackspace.org.uk/wiki/Project:Nanode
+emonBase: http://openenergymonitor.org/emon/emonbase
+emonTx: http://openenergymonitor.org/emon/emontx
+Nanode: http://ichilton.github.com/nanode/
  
