@@ -16,9 +16,10 @@ emonBase (emonTx base station) to post data to emoncms or Pachube
 Builds on JeeLabs and EtherCard software. Thanks to JCW and Andrew Lindsay
 -----------------------------------------------
 To make this work you will need:
-Arduino 1.0:				http://arduino.cc/en/Main/Software
-EtherCard development branch: 		https://github.com/jcw/ethercard/tarball/development
-JeeLib: 				https://github.com/jcw/jeelib
+Arduino 1.0:					http://arduino.cc/en/Main/Software
+EtherCard: 					https://github.com/jcw/ethercard
+	-If DHCP doesn't work try dev branch:	https://github.com/jcw/ethercard/tarball/development
+JeeLib: 					https://github.com/jcw/jeelib
 
 -----------------------------------------------
 The is a collaboration between OpenEnergyMonitor.org and Nanode.eu (Ken Boak) 
