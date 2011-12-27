@@ -8,27 +8,33 @@
 */
 //--------------------------------------------------------------------------------------
 // Relay's data recieved by emontx up to emoncms
-// Minimal CT and supply voltage only version
+
+//emonBase Documentation: http://openenergymonitor.org/emon/emonbase
 
 // Authors: Trystan Lea and Glyn Hudson
 // Part of the: openenergymonitor.org
 // Licenced under GNU GPL V3
+//http://openenergymonitor.org/emon/license
 
 // EtherCard Library by Jean-Claude Wippler and Andrew Lindsay
 // JeeLib Library by Jean-Claude Wippler
+//--------------------------------------------------------------------------------------
 
 // #define DEBUG 
 
-#include <JeeLib.h>
+#include <JeeLib.h>	     //https://github.com/jcw/jeelib
 
 #define MYNODE 35            // node ID 30 reserved for base station
 #define freq RF12_433MHZ     // frequency
 #define group 210            // network group 
 
 // The RF12 data payload - a neat way of packaging data when sending via RF - JeeLabs
+// must be same structure as transmitted from emonTx
 typedef struct
 {
   int ct1;		     // current transformer 1
+  //int ct2;                 // current transformer 2 - un-comment as appropriate 
+  //int ct3;                 // current transformer 1 - un-comment as appropriate 
   int supplyV;               // emontx voltage
 } Payload;
 Payload emontx;     
@@ -57,14 +63,18 @@ PacketBuffer str;
 //--------------------------------------------------------------------------
 // Ethernet
 //--------------------------------------------------------------------------
-#include <EtherCard.h>
+#include <EtherCard.h>		//https://github.com/jcw/ethercard 
 
 // ethernet interface mac address, must be unique on the LAN
 static byte mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
 
+//IP address of remote sever, only needed when posting to a server that has not got a dns domain name (staticIP e.g local server) 
+//static byte hisip[] = { xxx,xxx,xxx,xxx };      
+
 byte Ethernet::buffer[700];
 static uint32_t timer;
 
+//Domain name of remote webserver - leave blank if posting to IP address 
 char website[] PROGMEM = "www.vis.openenergymonitor.org";
 
 // called when the client request is complete
@@ -84,51 +94,88 @@ unsigned long lastRF;                                             // used to che
 int post_count;                                                   // used to count number of ethernet posts that dont recieve a reply
 int dhcp_count =0;
 
+//NanodeRF error indication LED variables 
+const int redLED=6;                      //NanodeRF RED indicator LED
+const int greenLED=5;                    //NanodeRF GREEN indicator LED
+int error=0;                             //Etherent (controller/DHCP) error flag
+int RFerror=0;                           //RF error flag - high when no data received 
+
+
+//**********************************************************************************************************************
+// SETUP
+//**********************************************************************************************************************
 void setup () {
+  
+  //Nanode RF LED indictor  setup - green flashing means good - red on for a long time means bad! 
+  //High means off since NanodeRF tri-state buffer inverts signal 
+  pinMode(redLED, OUTPUT); digitalWrite(redLED,LOW);            
+  pinMode(greenLED, OUTPUT); digitalWrite(greenLED,LOW);       
+  delay(100); digitalWrite(redLED,HIGH);                        //turn off redLED
+  
   Serial.begin(9600);
   Serial.println("\n[webClient]");
 
-  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) 
+  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) {
     Serial.println( "Failed to access Ethernet controller");
-  if (!ether.dhcpSetup())
+  error=1;  
+  }
+    
+  if (!ether.dhcpSetup()) {
     Serial.println("DHCP failed");
+   error=1;  
+  }
 
   ether.printIp("IP:  ", ether.myip);
   ether.printIp("GW:  ", ether.gwip);  
   ether.printIp("DNS: ", ether.dnsip);  
 
-  if (!ether.dnsLookup(website))
+  if (!ether.dnsLookup(website)) {                            //perform DNS lookup - comment out and un-comment ether.copyIP line below for posting to static IP
     Serial.println("DNS failed");
+    error=1;
+  }
+  
+  //ether.copyIp(ether.hisip, hisip);                           //un-comment for posting to static IP server (no domain name)
     
   ether.printIp("SRV: ", ether.hisip);
   
   rf12_initialize(MYNODE, freq,group);
   lastRF = millis()-40000;                                        // setting lastRF back 40s is useful as it forces the ethernet code to run straight away
- 
+   
+  digitalWrite(greenLED,HIGH);                                     //Green LED off - indicate that setup has finished 
 }
+//**********************************************************************************************************************
 
+
+//**********************************************************************************************************************
+// LOOP
+//**********************************************************************************************************************
 void loop () {
   
-  digitalWrite(6,HIGH);    //turn inidicator LED off! yes off! input gets inverted by buffer
+  if ((error==1) || (RFerror==1)) digitalWrite(redLED,LOW);      //turn on red LED if RF / DHCP or Etherent controllor error. Need way to notify of server error
+    else digitalWrite(redLED,HIGH);
 
   //---------------------------------------------------------------------
   // On data receieved from rf12
   //---------------------------------------------------------------------
   if (rf12_recvDone() && rf12_crc == 0 && (rf12_hdr & RF12_HDR_CTL) == 0) 
   {
-    digitalWrite(6,LOW);                                          // Flash LED on recieve ON
+    digitalWrite(greenLED,LOW);                                   // turn green LED on to indicate RF recieve 
     emontx=*(Payload*) rf12_data;                                 // Get the payload
-    // emontx_nodeID=rf12_hdr & 0x1F;   //extract node ID from received packet 
+    // emontx_nodeID=rf12_hdr & 0x1F;                             //extract node ID from received packet - only needed when multiple emonTx are posting on same network 
+    
+    RFerror=0;                                                    //reset RF error flag
     
     // JSON creation: JSON sent are of the format: {key1:value1,key2:value2} and so on
-    str.reset();                                                  // Reset json string      
-    str.print("{rf_fail:0,");                                     // RF recieved so no failure
-    str.print("ct1:");    str.print(emontx.ct1);                  // Add CT 1 reading 
-    str.print(",battery:");    str.print(emontx.supplyV);         // Add Emontx battery voltage reading
+    str.reset();                                                 // Reset json string      
+    str.print("{rf_fail:0");                                     // RF recieved so no failure
+    str.print(",ct1:");    str.print(emontx.ct1);                // Add CT 1 reading 
+    //str.print(",ct2:");    str.print(emontx.ct2);              // Add CT 2 reading  - un-comment if needed
+    //str.print(",ct3:");    str.print(emontx.ct3);              // Add CT 3 reading  - un-comment if needed
+    str.print(",battery:");    str.print(emontx.supplyV);        // Add emontx battery voltage reading
 
     dataReady = 1;                                                // Ok, data is ready
     lastRF = millis();                                            // reset lastRF timer
-    digitalWrite(6,HIGH);                                         // Flash LED on recieve OFF
+    digitalWrite(greenLED,HIGH);                                  // Turn green LED on OFF
     #ifdef DEBUG 
       Serial.println("RF recieved");
     #endif
@@ -142,6 +189,7 @@ void loop () {
     str.reset();                                                  // reset json string
     str.print("{rf_fail:1");                                      // No RF received in 30 seconds so send failure 
     dataReady = 1;                                                // Ok, data is ready
+    RFerror=1;
   }
 
   
@@ -156,7 +204,9 @@ void loop () {
     
     // Example of posting to emoncms v3 demo account goto http://vis.openenergymonitor.org/emoncms3 and login with demo:demo
     // To point to your account just enter your WRITE APIKEY 
+    
     ether.browseUrl(PSTR("/emoncms3/api/post.json?apikey=53c13213f301f6427c857a9426ce0efa&json="),str.buf, website, my_callback);
     dataReady =0;
   }
 }
+//**********************************************************************************************************************
