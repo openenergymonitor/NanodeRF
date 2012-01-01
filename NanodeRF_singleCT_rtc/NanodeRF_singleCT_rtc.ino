@@ -28,6 +28,7 @@
 RTC_Millis RTC;
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
+#include <avr/wdt.h>
 
 #define MYNODE 35            // node ID 30 reserved for base station
 #define freq RF12_433MHZ     // frequency
@@ -96,7 +97,7 @@ int RFerror=0;                           //RF error flag - high when no data rec
 
 int dhcp_status = 0;
 int dns_status = 0;
-int reply_recieved = 0;
+int request_attempt = 0;
 
 char line_buf[50];
 
@@ -125,37 +126,10 @@ static void my_callback (byte status, word off, word len) {
   RTC.adjust(DateTime(2012, 1, day, hour, mins, sec));
   DateTime now = RTC.now();
   
-  // Print the date and time
-  showDate("now", now);
-  
   //-----------------------------------------------------------------------------
   get_reply_data(off);
-  if (strcmp(line_buf,"ok")) {Serial.println("ok recieved"); reply_recieved = 1;}
+  if (strcmp(line_buf,"ok")) {Serial.println("ok recieved"); request_attempt = 0;}
   
-}
-
-void showDate(const char* txt, const DateTime& dt) {
-    Serial.print(txt);
-    Serial.print(' ');
-    Serial.print(dt.year(), DEC);
-    Serial.print('/');
-    Serial.print(dt.month(), DEC);
-    Serial.print('/');
-    Serial.print(dt.day(), DEC);
-    Serial.print(' ');
-    Serial.print(dt.hour(), DEC);
-    Serial.print(':');
-    Serial.print(dt.minute(), DEC);
-    Serial.print(':');
-    Serial.print(dt.second(), DEC);
-    
-    Serial.print(" = ");
-    Serial.print(dt.get());
-    Serial.print("s / ");
-    Serial.print(dt.get() / 86400L);
-    Serial.print("d since 2000");
-    
-    Serial.println();
 }
 
 //**********************************************************************************************************************
@@ -181,6 +155,8 @@ void setup () {
   lastRF = millis()-40000;                                        // setting lastRF back 40s is useful as it forces the ethernet code to run straight away
    
   digitalWrite(greenLED,HIGH);                                    //Green LED off - indicate that setup has finished 
+ 
+  wdt_enable(WDTO_8S);
 }
 //**********************************************************************************************************************
 
@@ -189,7 +165,8 @@ void setup () {
 // LOOP
 //**********************************************************************************************************************
 void loop () {
-
+  
+  wdt_reset();
   //-----------------------------------------------------------------------------------
   // Get DHCP address
   // Putting DHCP setup and DNS lookup in the main loop allows for: 
@@ -198,7 +175,9 @@ void loop () {
   if (ether.dhcpExpired()) dhcp_status = 0;    // if dhcp expired start request for new lease by changing status
   
   if (!dhcp_status){
+    wdt_disable();
     dhcp_status = ether.dhcpSetup();           // DHCP setup
+    wdt_enable(WDTO_8S);
     Serial.print("DHCP status: ");             // print
     Serial.println(dhcp_status);               // dhcp status
     
@@ -218,7 +197,9 @@ void loop () {
   // Get server address via DNS
   //-----------------------------------------------------------------------------------
   if (dhcp_status && !dns_status){
+    wdt_disable();
     dns_status = ether.dnsLookup(website);    // Attempt DNS lookup
+    wdt_enable(WDTO_8S);
     Serial.print("DNS status: ");             // print
     Serial.println(dns_status);               // dns status
     if (dns_status){
@@ -226,7 +207,7 @@ void loop () {
     } else { error=1; }  
   }
   
-  if (error==1 || RFerror==1 || reply_recieved ==0) digitalWrite(redLED,LOW);      //turn on red LED if RF / DHCP or Etherent controllor error. Need way to notify of server error
+  if (error==1 || RFerror==1 || request_attempt > 0) digitalWrite(redLED,LOW);      //turn on red LED if RF / DHCP or Etherent controllor error. Need way to notify of server error
     else digitalWrite(redLED,HIGH);
 
   //---------------------------------------------------------------------
@@ -274,15 +255,18 @@ void loop () {
     str.print("}\0");
     
     #ifdef DEBUG 
-      Serial.println(str.buf);  
+      Serial.println(str.buf); 
+      Serial.println(request_attempt);   
     #endif    // Print final json string to terminal    
-    
+
     // Example of posting to emoncms v3 demo account goto http://vis.openenergymonitor.org/emoncms3 
     // and login with sandbox:sandbox
     // To point to your account just enter your WRITE APIKEY 
-    reply_recieved = 0;
+    request_attempt ++;
     ether.browseUrl(PSTR("/emoncms3/api/post.json?apikey=ff64c806e5b618c64708280f868a39e0&json="),str.buf, website, my_callback);
     dataReady =0;
   }
+  
+  if (request_attempt > 10) delay(10000); // Reset the nanode if more than 10 request attempts have been tried without a reply
 }
 //**********************************************************************************************************************
