@@ -12,7 +12,7 @@
 // emonBase Documentation: http://openenergymonitor.org/emon/emonbase
 
 // Authors: Trystan Lea and Glyn Hudson
-// Part of the: openenergymonitor.org
+// Part of the: openenergymonitor.org project
 // Licenced under GNU GPL V3
 //http://openenergymonitor.org/emon/license
 
@@ -93,35 +93,20 @@ int dhcp_status = 0;
 int dns_status = 0;
 int reply_recieved = 0;
 
+char line_buf[50];
+
 //-----------------------------------------------------------------------------------
 // Ethernet callback
-// recieve reply and check for successful http status code: 200
+// recieve reply and decode
 //-----------------------------------------------------------------------------------
 static void my_callback (byte status, word off, word len) {
   
-  if (off != 0)
-  {
-    uint16_t pos = off;
-
-    int done = 0;
-    int space_count = 0;
-    char status_code[4]; int si=0;
-    while (Ethernet::buffer[pos] && done ==0)
-    {
-      if (Ethernet::buffer[pos]=='\n') done=1;
-      if (space_count==1 && !done)
-      {
-        status_code[si] = Ethernet::buffer[pos];
-        si++;
-      }
-      if (Ethernet::buffer[pos]== ' ') space_count++;
-      pos++;
-    }
-    status_code[si] = '\0';
-    Serial.print("Status code: ");
-    Serial.println(status_code);
-    if (atoi(status_code) == 200) reply_recieved = 1; else reply_recieved = 0;
-  }
+  get_header_line(2,off);      // Get the date and time from the header
+  Serial.println(line_buf);    // Print out the date and time
+  
+  get_reply_data(off);
+  if (strcmp(line_buf,"ok")) {Serial.println("ok recieved"); reply_recieved = 1;}
+  
 }
 
 //**********************************************************************************************************************
