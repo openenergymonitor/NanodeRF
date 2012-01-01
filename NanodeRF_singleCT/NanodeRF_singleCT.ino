@@ -9,7 +9,7 @@
 //--------------------------------------------------------------------------------------
 // Relay's data recieved by emontx up to emoncms
 
-//emonBase Documentation: http://openenergymonitor.org/emon/emonbase
+// emonBase Documentation: http://openenergymonitor.org/emon/emonbase
 
 // Authors: Trystan Lea and Glyn Hudson
 // Part of the: openenergymonitor.org
@@ -20,7 +20,7 @@
 // JeeLib Library by Jean-Claude Wippler
 //--------------------------------------------------------------------------------------
 
-// #define DEBUG 
+#define DEBUG 
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 
@@ -66,27 +66,16 @@ PacketBuffer str;
 #include <EtherCard.h>		//https://github.com/jcw/ethercard 
 
 // ethernet interface mac address, must be unique on the LAN
-static byte mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
+static byte mymac[] = { 0x44,0x29,0x49,0x21,0x30,0x31 };
 
 //IP address of remote sever, only needed when posting to a server that has not got a dns domain name (staticIP e.g local server) 
-//static byte hisip[] = { xxx,xxx,xxx,xxx };      
-
 byte Ethernet::buffer[700];
 static uint32_t timer;
 
 //Domain name of remote webserver - leave blank if posting to IP address 
-char website[] PROGMEM = "www.vis.openenergymonitor.org";
+char website[] PROGMEM = "vis.openenergymonitor.org";
+//static byte hisip[] = { 213,138,101,177 };    // un-comment for posting to static IP server (no domain name)            
 
-// called when the client request is complete
-static void my_callback (byte status, word off, word len) {
-  
-  Ethernet::buffer[off+300] = 0;
-  #ifdef DEBUG 
-  Serial.println(">>>");
-  Serial.print((const char*) Ethernet::buffer + off);
-  Serial.println("...");
-  #endif
-}
 //--------------------------------------------------------------------------
 // Flow control varaiables
 int dataReady=0;                                                  // is set to 1 when there is data ready to be sent
@@ -100,6 +89,40 @@ const int greenLED=5;                    //NanodeRF GREEN indicator LED
 int error=0;                             //Etherent (controller/DHCP) error flag
 int RFerror=0;                           //RF error flag - high when no data received 
 
+int dhcp_status = 0;
+int dns_status = 0;
+int reply_recieved = 0;
+
+//-----------------------------------------------------------------------------------
+// Ethernet callback
+// recieve reply and check for successful http status code: 200
+//-----------------------------------------------------------------------------------
+static void my_callback (byte status, word off, word len) {
+  
+  if (off != 0)
+  {
+    uint16_t pos = off;
+
+    int done = 0;
+    int space_count = 0;
+    char status_code[4]; int si=0;
+    while (Ethernet::buffer[pos] && done ==0)
+    {
+      if (Ethernet::buffer[pos]=='\n') done=1;
+      if (space_count==1 && !done)
+      {
+        status_code[si] = Ethernet::buffer[pos];
+        si++;
+      }
+      if (Ethernet::buffer[pos]== ' ') space_count++;
+      pos++;
+    }
+    status_code[si] = '\0';
+    Serial.print("Status code: ");
+    Serial.println(status_code);
+    if (atoi(status_code) == 200) reply_recieved = 1; else reply_recieved = 0;
+  }
+}
 
 //**********************************************************************************************************************
 // SETUP
@@ -117,31 +140,13 @@ void setup () {
 
   if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) {
     Serial.println( "Failed to access Ethernet controller");
-  error=1;  
+    error=1;  
   }
-    
-  if (!ether.dhcpSetup()) {
-    Serial.println("DHCP failed");
-   error=1;  
-  }
-
-  ether.printIp("IP:  ", ether.myip);
-  ether.printIp("GW:  ", ether.gwip);  
-  ether.printIp("DNS: ", ether.dnsip);  
-
-  if (!ether.dnsLookup(website)) {                            //perform DNS lookup - comment out and un-comment ether.copyIP line below for posting to static IP
-    Serial.println("DNS failed");
-    error=1;
-  }
-  
-  //ether.copyIp(ether.hisip, hisip);                           //un-comment for posting to static IP server (no domain name)
-    
-  ether.printIp("SRV: ", ether.hisip);
-  
+ 
   rf12_initialize(MYNODE, freq,group);
   lastRF = millis()-40000;                                        // setting lastRF back 40s is useful as it forces the ethernet code to run straight away
    
-  digitalWrite(greenLED,HIGH);                                     //Green LED off - indicate that setup has finished 
+  digitalWrite(greenLED,HIGH);                                    //Green LED off - indicate that setup has finished 
 }
 //**********************************************************************************************************************
 
@@ -150,8 +155,44 @@ void setup () {
 // LOOP
 //**********************************************************************************************************************
 void loop () {
+
+  //-----------------------------------------------------------------------------------
+  // Get DHCP address
+  // Putting DHCP setup and DNS lookup in the main loop allows for: 
+  // powering nanode before ethernet is connected
+  //-----------------------------------------------------------------------------------
+  if (ether.dhcpExpired()) dhcp_status = 0;    // if dhcp expired start request for new lease by changing status
   
-  if ((error==1) || (RFerror==1)) digitalWrite(redLED,LOW);      //turn on red LED if RF / DHCP or Etherent controllor error. Need way to notify of server error
+  if (!dhcp_status){
+    dhcp_status = ether.dhcpSetup();           // DHCP setup
+    Serial.print("DHCP status: ");             // print
+    Serial.println(dhcp_status);               // dhcp status
+    
+    if (dhcp_status){                          // on success print out ip's
+      ether.printIp("IP:  ", ether.myip);
+      ether.printIp("GW:  ", ether.gwip);  
+      
+      static byte dnsip[] = {8,8,8,8};  
+      ether.copyIp(ether.dnsip, dnsip);
+      ether.printIp("DNS: ", ether.dnsip);
+      //ether.copyIp(ether.hisip, hisip);                             // un-comment for posting to static IP server (no domain name)
+      //dns_status = 1;                                               // un-comment for posting to static IP server (no domain name)            
+    } else { error=1; }  
+  }
+  
+  //-----------------------------------------------------------------------------------
+  // Get server address via DNS
+  //-----------------------------------------------------------------------------------
+  if (dhcp_status && !dns_status){
+    dns_status = ether.dnsLookup(website);    // Attempt DNS lookup
+    Serial.print("DNS status: ");             // print
+    Serial.println(dns_status);               // dns status
+    if (dns_status){
+      ether.printIp("SRV: ", ether.hisip);      // server ip
+    } else { error=1; }  
+  }
+  
+  if (error==1 || RFerror==1 || reply_recieved ==0) digitalWrite(redLED,LOW);      //turn on red LED if RF / DHCP or Etherent controllor error. Need way to notify of server error
     else digitalWrite(redLED,HIGH);
 
   //---------------------------------------------------------------------
@@ -199,13 +240,14 @@ void loop () {
     str.print("}\0");
     
     #ifdef DEBUG 
-      Serial.print(str.buf);  
+      Serial.println(str.buf);  
     #endif    // Print final json string to terminal    
     
-    // Example of posting to emoncms v3 demo account goto http://vis.openenergymonitor.org/emoncms3 and login with demo:demo
+    // Example of posting to emoncms v3 demo account goto http://vis.openenergymonitor.org/emoncms3 
+    // and login with sandbox:sandbox
     // To point to your account just enter your WRITE APIKEY 
-    
-    ether.browseUrl(PSTR("/emoncms3/api/post.json?apikey=53c13213f301f6427c857a9426ce0efa&json="),str.buf, website, my_callback);
+    reply_recieved = 0;
+    ether.browseUrl(PSTR("/emoncms3/api/post.json?apikey=ff64c806e5b618c64708280f868a39e0&json="),str.buf, website, my_callback);
     dataReady =0;
   }
 }
