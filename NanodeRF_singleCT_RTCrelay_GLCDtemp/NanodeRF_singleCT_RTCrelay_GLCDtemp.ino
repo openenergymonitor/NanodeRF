@@ -33,7 +33,7 @@ RTC_Millis RTC;
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 #include <avr/wdt.h>
 
-#define MYNODE 15            // node ID 30 reserved for base station
+#define MYNODE 15            
 #define freq RF12_433MHZ     // frequency
 #define group 210            // network group 
 
