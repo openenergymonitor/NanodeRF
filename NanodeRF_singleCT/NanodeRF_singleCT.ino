@@ -165,7 +165,7 @@ void loop () {
       
       static byte dnsip[] = {8,8,8,8};  
       ether.copyIp(ether.dnsip, dnsip);
-      ether.printIp("DNS: ", ether.dnsip);
+      ether.printIp("DNS: ", ether.dnsip);                            //comment out this line if posting to a static IP server this includes local host 
       //ether.copyIp(ether.hisip, hisip);                             // un-comment for posting to static IP server (no domain name)
       //dns_status = 1;                                               // un-comment for posting to static IP server (no domain name)            
     } else { error=1; }  
