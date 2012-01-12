@@ -76,6 +76,7 @@ static uint32_t timer;
 //Domain name of remote webserver - leave blank if posting to IP address 
 char website[] PROGMEM = "vis.openenergymonitor.org";
 //static byte hisip[] = { 213,138,101,177 };    // un-comment for posting to static IP server (no domain name)            
+//For posting to an IP address more changs are required on lines 167-170 below. See comments 
 
 //--------------------------------------------------------------------------
 // Flow control varaiables
