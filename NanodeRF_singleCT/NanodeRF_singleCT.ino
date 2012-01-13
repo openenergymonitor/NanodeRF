@@ -20,7 +20,8 @@
 // JeeLib Library by Jean-Claude Wippler
 //--------------------------------------------------------------------------------------
 
-#define DEBUG 
+#define DEBUG     //comment out to disable serial printing to increase long term stability 
+#define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 #include <avr/wdt.h>
@@ -135,7 +136,10 @@ void setup () {
    
   digitalWrite(greenLED,HIGH);                                    //Green LED off - indicate that setup has finished
  
+  #ifdef UNO
   wdt_enable(WDTO_8S); 
+  #endif;
+  
 }
 //**********************************************************************************************************************
 
@@ -145,7 +149,10 @@ void setup () {
 //**********************************************************************************************************************
 void loop () {
   
+  #ifdef UNO
   wdt_reset();
+  #endif
+  
   //-----------------------------------------------------------------------------------
   // Get DHCP address
   // Putting DHCP setup and DNS lookup in the main loop allows for: 
@@ -154,9 +161,17 @@ void loop () {
   if (ether.dhcpExpired()) dhcp_status = 0;    // if dhcp expired start request for new lease by changing status
   
   if (!dhcp_status){
+    
+    #ifdef UNO
     wdt_disable();
+    #endif 
+    
     dhcp_status = ether.dhcpSetup();           // DHCP setup
+    
+    #ifdef UNO
     wdt_enable(WDTO_8S);
+    #endif
+    
     Serial.print("DHCP status: ");             // print
     Serial.println(dhcp_status);               // dhcp status
     
@@ -176,9 +191,17 @@ void loop () {
   // Get server address via DNS
   //-----------------------------------------------------------------------------------
   if (dhcp_status && !dns_status){
+    
+    #ifdef UNO
     wdt_disable();
+    #endif 
+    
     dns_status = ether.dnsLookup(website);    // Attempt DNS lookup
+    
+    #ifdef UNO
     wdt_enable(WDTO_8S);
+    #endif;
+    
     Serial.print("DNS status: ");             // print
     Serial.println(dns_status);               // dns status
     if (dns_status){

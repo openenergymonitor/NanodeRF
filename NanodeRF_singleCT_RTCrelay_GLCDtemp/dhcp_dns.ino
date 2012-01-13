@@ -11,9 +11,17 @@ void dhcp_dns()
   if (ether.dhcpExpired()) dhcp_status = 0;    // if dhcp expired start request for new lease by changing status
   
   if (!dhcp_status){
+    
+    #ifdef UNO
     wdt_disable();
+    #endif 
+    
     dhcp_status = ether.dhcpSetup();           // DHCP setup
+    
+    #ifdef UNO
     wdt_enable(WDTO_8S);
+    #endif
+    
     Serial.print("DHCP status: ");             // print
     Serial.println(dhcp_status);               // dhcp status
     
@@ -33,9 +41,17 @@ void dhcp_dns()
   // Get server address via DNS
   //-----------------------------------------------------------------------------------
   if (dhcp_status && !dns_status){
+    
+    #ifdef UNO
     wdt_disable();
+    #endif 
+    
     dns_status = ether.dnsLookup(website);    // Attempt DNS lookup
+    
+    #ifdef UNO
     wdt_enable(WDTO_8S);
+    #endif;
+    
     Serial.print("DNS status: ");             // print
     Serial.println(dns_status);               // dns status
     if (dns_status){

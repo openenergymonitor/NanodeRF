@@ -24,7 +24,8 @@
 // JeeLib Library by Jean-Claude Wippler
 //--------------------------------------------------------------------------------------
 
-#define DEBUG 
+#define DEBUG     //comment out to disable serial printing to increase long term stability 
+#define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
 
 #include <Wire.h>
 #include <RTClib.h>
@@ -124,7 +125,9 @@ void setup () {
    
   digitalWrite(greenLED,HIGH);                                    // Green LED off - indicate that setup has finished 
  
-  wdt_enable(WDTO_8S);                                            // Turn on crash watchdog
+  #ifdef UNO
+  wdt_enable(WDTO_8S); 
+  #endif;
 }
 
 //**********************************************************************************************************************
@@ -132,7 +135,9 @@ void setup () {
 //**********************************************************************************************************************
 void loop () {
   
-  wdt_reset();  // reset crash watchdog
+  #ifdef UNO
+  wdt_reset();
+  #endif
 
   dhcp_dns();   // handle dhcp and dns setup - see dhcp_dns tab
   
