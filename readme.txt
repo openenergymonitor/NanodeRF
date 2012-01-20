@@ -32,8 +32,19 @@ Older version of the Nanode can be used with certain changes, see: http://openen
 
 For Older emonBase/NanodeRF examples which use the EtherShield library (now un-supported) see: https://github.com/openenergymonitor/NanodeRF_ethershield
 
+NanodeRF_singleCT: example receive data via RFM12B wireless from emonTx and post to emoncms
+
+NanodeRF_SingleCT_rtc: example to receive data via RFM12B wireless from emonTx and post to emoncms, then decode http header reply and extract current time from the sever
+
+NanodeRF_singleCT_RTCrelay_GLCDtemp: example to receive data via RFM12B wireless from emonTx and post to emoncms, decode header to extract current time, transmmitt time to emonGLCD display, receive temperature from emonGLCD's on-board temperature sensor. See: http://openenergymonitor.blogspot.com/2012/01/emonglcd-getting-time-for-internet.html
+
+NanodeRF_SingleCT_Pachube (ALPHA): *this sketch has not been properly tested* please post experiances on the forums. Receive data via RFM12B wireless and post to pachube.   
+
+
+
 Documentation Links:
-emonBase : http://openenergymonitor.org/emon/emonbase
+emonBase :http://openenergymonitor.org/emon/emonbase
+emoncms: http://openenergymonitor.org/emon/emoncms
 emonTx: http://openenergymonitor.org/emon/emontx
 Nanode: http://ichilton.github.com/nanode/
  

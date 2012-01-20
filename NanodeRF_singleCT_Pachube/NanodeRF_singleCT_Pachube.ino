@@ -21,7 +21,7 @@
 //--------------------------------------------------------------------------------------
 
 #define DEBUG     //comment out to disable serial printing to increase long term stability 
-// #define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
+#define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 #include <avr/wdt.h>
@@ -235,10 +235,14 @@ void loop () {
     #endif
     
   }
+    
+  
   
 
   
   ether.packetLoop(ether.packetReceive());
+  
+  if (dataReady){
      
      // PACHUBE generate two fake values as payload - by using a separate stash,
     // we can determine the size of the generated message ahead of time
@@ -251,6 +255,7 @@ void loop () {
     
     // generate the header with payload - note that the stash size is used,
     // and that a "stash descriptor" is passed in as argument using "$H"
+    request_attempt ++;
     Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
                         "Host: $F" "\r\n"
                         "X-PachubeApiKey: $F" "\r\n"
