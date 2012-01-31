@@ -21,7 +21,7 @@
 //--------------------------------------------------------------------------------------
 
 #define DEBUG     //comment out to disable serial printing to increase long term stability 
-#define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
+//#define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 #include <avr/wdt.h>
@@ -94,7 +94,7 @@ int RFerror=0;                           //RF error flag - high when no data rec
 
 int dhcp_status = 0;
 int dns_status = 0;
-int request_attempt = 0;
+//int request_attempt = 0;
 
 char line_buf[50];
 
@@ -108,8 +108,8 @@ static void my_callback (byte status, word off, word len) {
   get_header_line(2,off);      // Get the date and time from the header
   Serial.println(line_buf);    // Print out the date and time
   
-  get_reply_data(off);
-  if (strcmp(line_buf,"ok")) {Serial.println("ok recieved"); request_attempt = 0;}
+  //get_reply_data(off);
+  //if (strcmp(line_buf,"ok")) {Serial.println("ok recieved"); request_attempt = 0;}
   
 }
 
@@ -208,7 +208,7 @@ void loop () {
     } else { error=1; }  
   }
   
-  if (error==1 || RFerror==1 || request_attempt > 0) digitalWrite(redLED,LOW);      //turn on red LED if RF / DHCP or Etherent controllor error. Need way to notify of server error
+  if (error==1 || RFerror==1) digitalWrite(redLED,LOW);      //turn on red LED if RF / DHCP or Etherent controllor error. Need way to notify of server error
     else digitalWrite(redLED,HIGH);
 
   //---------------------------------------------------------------------
@@ -255,7 +255,7 @@ void loop () {
     
     // generate the header with payload - note that the stash size is used,
     // and that a "stash descriptor" is passed in as argument using "$H"
-    request_attempt ++;
+    //request_attempt ++;
     Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
                         "Host: $F" "\r\n"
                         "X-PachubeApiKey: $F" "\r\n"
@@ -274,7 +274,7 @@ void loop () {
   
   
   #ifdef UNO
-  if (request_attempt > 10) delay(10000); // Reset the nanode if more than 10 request attempts have been tried without a reply
+  //if (request_attempt > 10) delay(10000); // Reset the nanode if more than 10 request attempts have been tried without a reply
   #endif
   
 }
