@@ -101,15 +101,12 @@ char line_buf[50];
 //-----------------------------------------------------------------------------------
 // Ethernet callback
 // recieve reply and decode
-// Check if required for Pachube
 //-----------------------------------------------------------------------------------
 static void my_callback (byte status, word off, word len) {
   
-  get_header_line(2,off);      // Get the date and time from the header
+  get_header_line(1,off);      // Get the date and time from the header
   Serial.println(line_buf);    // Print out the date and time
-  
-  get_reply_data(off);
-  if (strcmp(line_buf,"ok")) {Serial.println("ok recieved"); request_attempt = 0;}
+      if (strcmp(line_buf,"HTTP/1.1 200 OK")) {Serial.println("ok recieved"); request_attempt = 0;}
   
 }
 
@@ -266,6 +263,7 @@ void loop () {
 
     // send the packet - this also releases all stash buffers once done
     ether.tcpSend();
+    Serial.println((char*) ether.buffer);
 
     // END PAchube  
     

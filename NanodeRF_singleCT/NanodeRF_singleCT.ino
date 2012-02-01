@@ -21,7 +21,7 @@
 //--------------------------------------------------------------------------------------
 
 #define DEBUG     //comment out to disable serial printing to increase long term stability 
-#define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
+//#define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 #include <avr/wdt.h>
