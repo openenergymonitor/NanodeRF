@@ -1,5 +1,4 @@
-int dhcp_status = 0;
-int dns_status = 0;
+
 
 void dhcp_dns()
 {

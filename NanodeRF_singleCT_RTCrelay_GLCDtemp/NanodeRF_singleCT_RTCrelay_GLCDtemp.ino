@@ -95,6 +95,9 @@ int ethernet_error = 0;                   // Etherent (controller/DHCP) error fl
 int rf_error = 0;                         // RF error flag - high when no data received 
 int ethernet_requests = 0;                // count ethernet requests without reply                 
 
+int dhcp_status = 0;
+int dns_status = 0;
+
 int emonglcd_rx = 0;                      // Used to indicate that emonglcd data is available
 int data_ready=0;                         // Used to signal that emontx data is ready to be sent
 unsigned long last_rf;                    // Used to check for regular emontx data - otherwise error
@@ -122,8 +125,9 @@ void setup () {
 
   dhcp_status = 0;
   dns_status = 0;
-  request_attempt = 0;
-  error=0;
+  ethernet_requests = 0;
+  ethernet_error=0;
+  rf_error=0;
  
   rf12_initialize(MYNODE, freq,group);
   last_rf = millis()-40000;                                       // setting lastRF back 40s is useful as it forces the ethernet code to run straight away
