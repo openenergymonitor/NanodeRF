@@ -119,6 +119,11 @@ void setup () {
     Serial.println( "Failed to access Ethernet controller");
     ethernet_error = 1;  
   }
+
+  dhcp_status = 0;
+  dns_status = 0;
+  request_attempt = 0;
+  error=0;
  
   rf12_initialize(MYNODE, freq,group);
   last_rf = millis()-40000;                                       // setting lastRF back 40s is useful as it forces the ethernet code to run straight away
