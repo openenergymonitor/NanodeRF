@@ -19,7 +19,7 @@ To make this work you will need:
 Arduino 1.0:					http://arduino.cc/en/Main/Software
 EtherCard: 					https://github.com/jcw/ethercard
 JeeLib: 					https://github.com/jcw/jeelib
-
+RTClib:                                                                                                                                                    https://github.com/jcw/rtclib
 -----------------------------------------------
 The is a collaboration between OpenEnergyMonitor.org and Nanode.eu (Ken Boak) 
 
