@@ -94,7 +94,7 @@ int RFerror=0;                           //RF error flag - high when no data rec
 
 int dhcp_status = 0;
 int dns_status = 0;
-//int request_attempt = 0;
+int request_attempt = 0;
 
 char line_buf[50];
 
@@ -262,7 +262,7 @@ void loop () {
     
     // generate the header with payload - note that the stash size is used,
     // and that a "stash descriptor" is passed in as argument using "$H"
-    //request_attempt ++;
+    request_attempt ++;
     Stash::prepare(PSTR("PUT http://$F/v2/feeds/$F.csv HTTP/1.0" "\r\n"
                         "Host: $F" "\r\n"
                         "X-PachubeApiKey: $F" "\r\n"
@@ -279,11 +279,21 @@ void loop () {
     
     dataReady =0;
   }
+
+// Reset the error flags as suggested by @fjhug on forum thread http://openenergymonitor.org/emon/node/363 every 100 requests - although not a definitive solution it massively increases long-term stability
+if (request_attempt > 100) {   
+   #ifdef UNO
+      delay(10000); 
+   #else
+   ether.begin(sizeof Ethernet::buffer, mymac);
+      dhcp_status = 0;
+      dns_status = 0;
+      request_attempt = 0;
+      error=0;
+   #endif
+  }
   
   
-  #ifdef UNO
-  //if (request_attempt > 10) delay(10000); // Reset the nanode if more than 10 request attempts have been tried without a reply
-  #endif
   
 }
 //**********************************************************************************************************************

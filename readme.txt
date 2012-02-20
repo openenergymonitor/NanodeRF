@@ -38,7 +38,7 @@ NanodeRF_SingleCT_rtc: example to receive data via RFM12B wireless from emonTx a
 
 NanodeRF_singleCT_RTCrelay_GLCDtemp: example to receive data via RFM12B wireless from emonTx and post to emoncms, decode header to extract current time, transmmitt time to emonGLCD display, receive temperature from emonGLCD's on-board temperature sensor. See: http://openenergymonitor.blogspot.com/2012/01/emonglcd-getting-time-for-internet.html
 
-NanodeRF_SingleCT_Pachube (ALPHA): *this sketch has not been properly tested* please post experiances on the forums. Receive data via RFM12B wireless and post to pachube.   
+NanodeRF_SingleCT_Pachube (BETA): Receive data from emonTx via RFM12B wireless and post to pachube. *this sketch has got known stability issues* please post experiances on the forums and feel free to improve!. 
 
 
 
