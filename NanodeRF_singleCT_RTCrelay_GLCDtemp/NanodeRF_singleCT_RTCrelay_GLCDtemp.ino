@@ -266,9 +266,9 @@ static void my_callback (byte status, word off, word len) {
   RTC.adjust(DateTime(2012, 1, day, hour, mins, sec));
   
   DateTime now = RTC.now();
-  emonbase.hour = now.hour();
-  emonbase.mins = now.minute();
-  emonbase.sec = now.second();
+  if ((!now.hour()==0) && (!now.minute()==0)) {
+	emonbase.hour = now.hour();    //don't send all zeros, happens when server failes to returns reponce to avoide GLCD getting mistakenly set to midnight
+  	emonbase.mins = now.minute();}
   
   //-----------------------------------------------------------------------------
   
