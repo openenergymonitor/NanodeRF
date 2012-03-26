@@ -41,8 +41,8 @@ RTC_Millis RTC;
 //---------------------------------------------------
 // Data structures for transfering data between units
 //---------------------------------------------------
-typedef struct { int power, battery; } PayloadTX;
-PayloadTX emontx;    
+typedef struct { int power1, power2, power3, battery; } PayloadTX;
+PayloadTX emontx;
 
 typedef struct { int temperature; } PayloadGLCD;
 PayloadGLCD emonglcd;
@@ -78,7 +78,7 @@ PacketBuffer str;
 #include <EtherCard.h>		//https://github.com/jcw/ethercard 
 
 // ethernet interface mac address, must be unique on the LAN
-static byte mymac[] = { 0x44,0x29,0x49,0x21,0x30,0x31 };
+static byte mymac[] = { 0x42,0x31,0x42,0x21,0x30,0x31 };
 
 //IP address of remote sever, only needed when posting to a server that has not got a dns domain name (staticIP e.g local server) 
 byte Ethernet::buffer[700];
@@ -166,12 +166,7 @@ void loop () {
         {
           emontx = *(PayloadTX*) rf12_data;                              // get emontx data
           Serial.println();                                              // print emontx data to serial
-          Serial.print("1 emontx: ");  
-          Serial.print(emontx.power);
-          Serial.print(' ');
-          Serial.print(emontx.battery);
-          Serial.print(" | time: ");          
-          Serial.println(millis()-last_rf);
+          Serial.print("1 emontx packet rx");
           last_rf = millis();                                            // reset lastRF timer
           
           delay(50);                                                     // make sure serial printing finished
@@ -180,7 +175,9 @@ void loop () {
           
           str.reset();                                                   // Reset json string      
           str.print("{rf_fail:0");                                       // RF recieved so no failure
-          str.print(",power:");        str.print(emontx.power);          // Add power reading 
+          str.print(",power1:");        str.print(emontx.power1);          // Add power reading
+          str.print(",power2:");        str.print(emontx.power2);          // Add power reading
+          str.print(",power3:");        str.print(emontx.power3);          // Add power reading 
           str.print(",battery:");      str.print(emontx.battery);        // Add emontx battery voltage reading
     
           data_ready = 1;                                                // data is ready
@@ -232,7 +229,7 @@ void loop () {
     // and login with sandbox:sandbox
     // To point to your account just enter your WRITE APIKEY 
     ethernet_requests ++;
-    ether.browseUrl(PSTR("/emoncms3/api/post.json?apikey=2d177d7311daf401d054948ce29efe74&json="),str.buf, website, my_callback);
+    ether.browseUrl(PSTR("/emoncms3/api/post.json?apikey=YOURAPIKEY&json="),str.buf, website, my_callback);
     data_ready =0;
   }
   
