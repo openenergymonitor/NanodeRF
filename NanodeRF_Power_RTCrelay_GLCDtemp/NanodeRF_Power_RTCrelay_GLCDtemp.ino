@@ -25,7 +25,7 @@
 //--------------------------------------------------------------------------------------
 
 #define DEBUG     //comment out to disable serial printing to increase long term stability 
-//#define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
+#define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
 
 #include <Wire.h>
 #include <RTClib.h>
@@ -41,7 +41,8 @@ RTC_Millis RTC;
 //---------------------------------------------------
 // Data structures for transfering data between units
 //---------------------------------------------------
-typedef struct { int power1, power2, power3, battery; } PayloadTX;
+
+typedef struct { int power1, power2, power3, voltage; } PayloadTX;
 PayloadTX emontx;
 
 typedef struct { int temperature; } PayloadGLCD;
@@ -178,7 +179,7 @@ void loop () {
           str.print(",power1:");        str.print(emontx.power1);          // Add power reading
           str.print(",power2:");        str.print(emontx.power2);          // Add power reading
           str.print(",power3:");        str.print(emontx.power3);          // Add power reading 
-          str.print(",battery:");      str.print(emontx.battery);        // Add emontx battery voltage reading
+          str.print(",voltage:");      str.print(emontx.voltage);        // Add emontx battery voltage reading
     
           data_ready = 1;                                                // data is ready
           rf_error = 0;
