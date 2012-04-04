@@ -19,7 +19,7 @@ To make this work you will need:
 Arduino 1.0:					http://arduino.cc/en/Main/Software
 EtherCard: 					https://github.com/jcw/ethercard
 JeeLib: 					https://github.com/jcw/jeelib
-RTClib:                                                                                                                                                    https://github.com/jcw/rtclib
+RTClib:                                         https://github.com/jcw/rtclib                                                                                                           
 -----------------------------------------------
 The is a collaboration between OpenEnergyMonitor.org and Nanode.eu (Ken Boak) 
 
@@ -32,11 +32,7 @@ Older version of the Nanode can be used with certain changes, see: http://openen
 
 For Older emonBase/NanodeRF examples which use the EtherShield library (now un-supported) see: https://github.com/openenergymonitor/NanodeRF_ethershield
 
-NanodeRF_singleCT: example receive data via RFM12B wireless from emonTx and post to emoncms
-
-NanodeRF_SingleCT_rtc: example to receive data via RFM12B wireless from emonTx and post to emoncms, then decode http header reply and extract current time from the sever
-
-NanodeRF_singleCT_RTCrelay_GLCDtemp: example to receive data via RFM12B wireless from emonTx and post to emoncms, decode header to extract current time, transmmitt time to emonGLCD display, receive temperature from emonGLCD's on-board temperature sensor. See: http://openenergymonitor.blogspot.com/2012/01/emonglcd-getting-time-for-internet.html
+NanodeRF_PowerRTCrelay_GLCDtemp: example to receive data via RFM12B wireless from emonTx and post to emoncms, decode header to extract current time, transmmitt time to emonGLCD display, receive temperature from emonGLCD's on-board temperature sensor. See: http://openenergymonitor.blogspot.com/2012/01/emonglcd-getting-time-for-internet.html
 
 NanodeRF_SingleCT_Pachube (BETA): Receive data from emonTx via RFM12B wireless and post to pachube. *this sketch has got known stability issues* please post experiances on the forums and feel free to improve!. 
 
