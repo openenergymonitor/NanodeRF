@@ -27,10 +27,6 @@
 #define DEBUG     //comment out to disable serial printing to increase long term stability 
 #define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
 
-#include <Wire.h>
-#include <RTClib.h>
-RTC_Millis RTC;
-
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 #include <avr/wdt.h>
 
@@ -48,7 +44,7 @@ PayloadTX emontx;
 typedef struct { int temperature; } PayloadGLCD;
 PayloadGLCD emonglcd;
 
-typedef struct { int hour, mins, sec; } PayloadBase;
+typedef struct { int hour, mins;} PayloadBase;
 PayloadBase emonbase;
 //---------------------------------------------------
 
@@ -98,7 +94,6 @@ int ethernet_requests = 0;                // count ethernet requests without rep
 
 int dhcp_status = 0;
 int dns_status = 0;
-
 int emonglcd_rx = 0;                      // Used to indicate that emonglcd data is available
 int data_ready=0;                         // Used to signal that emontx data is ready to be sent
 unsigned long last_rf;                    // Used to check for regular emontx data - otherwise error
@@ -167,7 +162,7 @@ void loop () {
         {
           emontx = *(PayloadTX*) rf12_data;                              // get emontx data
           Serial.println();                                              // print emontx data to serial
-          Serial.print("1 emontx packet rx");
+          Serial.print("emonTx data rx");
           last_rf = millis();                                            // reset lastRF timer
           
           delay(50);                                                     // make sure serial printing finished
@@ -177,8 +172,6 @@ void loop () {
           str.reset();                                                   // Reset json string      
           str.print("{rf_fail:0");                                       // RF recieved so no failure
           str.print(",power1:");        str.print(emontx.power1);          // Add power reading
-          str.print(",power2:");        str.print(emontx.power2);          // Add power reading
-          str.print(",power3:");        str.print(emontx.power3);          // Add power reading 
           str.print(",voltage:");      str.print(emontx.voltage);        // Add emontx battery voltage reading
     
           data_ready = 1;                                                // data is ready
@@ -188,7 +181,7 @@ void loop () {
         if (node_id == 20)                                               // EMONGLCD 
         {
           emonglcd = *(PayloadGLCD*) rf12_data;                          // get emonglcd data
-          Serial.print("5 emonglcd: ");                                  // print output
+          Serial.print("emonGLCD temp recv: ");                          // print output
           Serial.println(emonglcd.temperature);  
           emonglcd_rx = 1;        
         }
@@ -246,7 +239,7 @@ void loop () {
 static void my_callback (byte status, word off, word len) {
   
   get_header_line(2,off);      // Get the date and time from the header
-  Serial.print("3 ok | ");    // Print out the date and time
+  Serial.print("ok recv from server | ");    // Print out the date and time
   Serial.println(line_buf);    // Print out the date and time
   
   // Decode date time string to get integers for hour, min, sec, day
@@ -260,14 +253,11 @@ static void my_callback (byte status, word off, word len) {
   int sec = atoi(val);
   val[0] = line_buf[11]; val[1] = line_buf[12];
   int day = atoi(val);
-
-  RTC.adjust(DateTime(2012, 1, day, hour, mins, sec));
-  
-  DateTime now = RTC.now();
-  if ((!now.hour()==0) && (!now.minute()==0)) {
-	emonbase.hour = now.hour();    //don't send all zeros, happens when server failes to returns reponce to avoide GLCD getting mistakenly set to midnight
-  	emonbase.mins = now.minute();}
-  
+    
+  if (hour>0 || mins>0 || sec>0) {  //don't send all zeros, happens when server failes to returns reponce to avoide GLCD getting mistakenly set to midnight
+	emonbase.hour = hour;              //add current date and time to payload ready to be sent to emonGLCD
+  	emonbase.mins = mins;
+  }
   //-----------------------------------------------------------------------------
   
   delay(100);
@@ -277,7 +267,7 @@ static void my_callback (byte status, word off, word len) {
   rf12_sendStart(0, &emonbase, sizeof emonbase);                        // send payload
   rf12_sendWait(0);
   
-  Serial.println("4 emonbase sent");
+  Serial.println("time sent to emonGLCD");
   
   get_reply_data(off);
   if (strcmp(line_buf,"ok")) {ethernet_requests = 0; ethernet_error = 0;}  // check for ok reply from emoncms to verify data post request
