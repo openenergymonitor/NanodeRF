@@ -18,6 +18,15 @@
 
 // EtherCard Library by Jean-Claude Wippler and Andrew Lindsay
 // JeeLib Library by Jean-Claude Wippler
+//
+// THIS SKETCH REQUIRES:
+//
+// Libraries in the standard arduino libraries folder:
+//	- JeeLib		https://github.com/jcw/jeelib
+//	- EtherCard		https://github.com/jcw/ethercard/
+//
+// Other files in project directory (should appear in the arduino tabs above)
+//	- decode_reply.ino
 //--------------------------------------------------------------------------------------
 
 #define DEBUG     //comment out to disable serial printing to increase long term stability 
