@@ -16,7 +16,7 @@ emonBase (emonTx base station) to post data to emoncms or Pachube
 Builds on JeeLabs and EtherCard software. Thanks to JCW and Andrew Lindsay
 -----------------------------------------------
 To make this work you will need:
-Arduino 1.0:					http://arduino.cc/en/Main/Software
+Arduino 1.x:					http://arduino.cc/en/Main/Software
 EtherCard: 					https://github.com/jcw/ethercard
 JeeLib: 					https://github.com/jcw/jeelib
 RTClib:                                         https://github.com/jcw/rtclib                                                                                                           
@@ -34,8 +34,7 @@ For Older emonBase/NanodeRF examples which use the EtherShield library (now un-s
 
 NanodeRF_PowerRTCrelay_GLCDtemp: example to receive data via RFM12B wireless from emonTx and post to emoncms, decode header to extract current time, transmmitt time to emonGLCD display, receive temperature from emonGLCD's on-board temperature sensor. See: http://openenergymonitor.blogspot.com/2012/01/emonglcd-getting-time-for-internet.html
 
-NanodeRF_SingleCT_Pachube (BETA): Receive data from emonTx via RFM12B wireless and post to pachube. *this sketch has got known stability issues* please post experiances on the forums and feel free to improve!. 
-
+NanodeRF_Cosm (BETA): Receive data from emonTx via RFM12B wireless and post to Cosum. Just insert your Cosm feed ID and API Key. Thanks to Roger James for this contribution. See forum thread for discussion: http://openenergymonitor.org/emon/node/376
 
 
 Documentation Links:
