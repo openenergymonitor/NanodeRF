@@ -139,8 +139,8 @@ void setup () {
   rf_error=0;
 
 //For use with the modified JeeLib library to enable setting RFM12B SPI CS pin in the sketch. Download from: https://github.com/openenergymonitor/jeelib 
-//rf12_set_cs(9)  //Open Kontrol Gateway	
-//rf12_set_cs(10) //emonTx, emonGLCD, NanodeRF, JeeNode
+//rf12_set_cs(9);  //Open Kontrol Gateway	
+//rf12_set_cs(10); //emonTx, emonGLCD, NanodeRF, JeeNode
  
   rf12_initialize(MYNODE, freq,group);
   last_rf = millis()-40000;                                       // setting lastRF back 40s is useful as it forces the ethernet code to run straight away
