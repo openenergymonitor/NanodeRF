@@ -219,9 +219,7 @@ void loop () {
 
     // Example of posting to COSM
     ethernet_requests ++;
-//    ether.httpPost(PSTR("/v2/feeds/YOUR_FEED_ID.csv?_method=put"), website, PSTR("X-ApiKey: YOUR_API_KEY"), str.buf, my_callback);
-    ether.httpPost(PSTR("/v2/feeds/67796.csv?_method=put"), website, PSTR("X-ApiKey: Y3xIpC7E6cgDb9fd03s2OWW4R7ySAKxDKzM1MzV3MzByST0g"), str.buf, my_callback);
-//    ether.httpPost(PSTR("/v2/feeds/67796.csv?_method=put&key=Y3xIpC7E6cgDb9fd03s2OWW4R7ySAKxDKzM1MzV3MzByST0g"), website, 0, str.buf, my_callback);
+    ether.httpPost(PSTR("/v2/feeds/YOUR FEED ID.csv?_method=put"), website, PSTR("X-ApiKey:YOUR API KEY"), str.buf, my_callback);
     data_ready =0;
   }
   
