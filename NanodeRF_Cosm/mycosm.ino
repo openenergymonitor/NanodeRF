@@ -86,6 +86,8 @@ static uint32_t timer;
 char website[] PROGMEM = "api.cosm.com";
 
 const int redLED = 6;                     // NanodeRF RED indicator LED
+//const int redLED = 17;  		  // Open Kontrol Gateway LED indicator
+
 const int greenLED = 5;                   // NanodeRF GREEN indicator LED
 
 int ethernet_error = 0;                   // Etherent (controller/DHCP) error flag

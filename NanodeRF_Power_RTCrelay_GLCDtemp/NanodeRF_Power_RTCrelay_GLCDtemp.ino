@@ -96,6 +96,8 @@ char website[] PROGMEM = "vis.openenergymonitor.org";
 //static byte hisip[] = { 213,138,101,177 };    // un-comment for posting to static IP server (no domain name)            
 
 const int redLED = 6;                     // NanodeRF RED indicator LED
+//const int redLED = 17;  		  // Open Kontrol Gateway LED indicator
+
 const int greenLED = 5;                   // NanodeRF GREEN indicator LED
 
 int ethernet_error = 0;                   // Etherent (controller/DHCP) error flag
