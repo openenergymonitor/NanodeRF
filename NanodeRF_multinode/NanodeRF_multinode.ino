@@ -85,7 +85,7 @@ byte Ethernet::buffer[700];
 static uint32_t timer;
 
 //Domain name of remote webserver - leave blank if posting to IP address 
-char website[] PROGMEM = "vis.openenergymonitor.org";
+char website[] PROGMEM = "emoncms.org";
 //static byte hisip[] = { 213,138,101,177 };    // un-comment for posting to static IP server (no domain name)            
 
 const int redLED = 6;                     // NanodeRF RED indicator LED
@@ -242,11 +242,11 @@ static void my_callback (byte status, word off, word len) {
         delay(100);
   
   // Send time data
-  int i = 0; while (!rf12_canSend() && i<10) {rf12_recvDone(); i++;}    // if can send - exit if it gets stuck, as it seems too
-  rf12_sendStart(0, &emonbase, sizeof emonbase);                        // send payload
-  rf12_sendWait(0);
+  //int i = 0; while (!rf12_canSend() && i<10) {rf12_recvDone(); i++;}    // if can send - exit if it gets stuck, as it seems too
+  //rf12_sendStart(0, &emonbase, sizeof emonbase);                        // send payload
+  //rf12_sendWait(0);
   
-  Serial.println("time sent to emonGLCD");
+  //Serial.println("time sent to emonGLCD");
 
   }
   //-----------------------------------------------------------------------------

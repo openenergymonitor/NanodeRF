@@ -92,7 +92,7 @@ byte Ethernet::buffer[700];
 static uint32_t timer;
 
 //Domain name of remote webserver - leave blank if posting to IP address 
-char website[] PROGMEM = "vis.openenergymonitor.org";
+char website[] PROGMEM = "emoncms.org";
 //static byte hisip[] = { 213,138,101,177 };    // un-comment for posting to static IP server (no domain name)            
 
 const int redLED = 6;                     // NanodeRF RED indicator LED
@@ -181,7 +181,10 @@ void loop () {
           
           str.reset();                                                   // Reset json string      
           str.print("{rf_fail:0");                                       // RF recieved so no failure
-          str.print(",power1:");        str.print(emontx.power1);          // Add power reading
+          str.print(",power1:");        str.print(emontx.power1);        // Add power reading
+          str.print(",power2:");        str.print(emontx.power2);        // Add power reading
+          str.print(",power3:");        str.print(emontx.power3);        // Add power reading
+          
           str.print(",voltage:");      str.print(emontx.voltage);        // Add emontx battery voltage reading
     
           data_ready = 1;                                                // data is ready
@@ -233,7 +236,7 @@ void loop () {
     // and login with sandbox:sandbox
     // To point to your account just enter your WRITE APIKEY 
     ethernet_requests ++;
-    ether.browseUrl(PSTR("/emoncms3/api/post.json?apikey=YOURAPIKEY&json="),str.buf, website, my_callback);
+    ether.browseUrl(PSTR("/api/post.json?apikey=YOURAPIKEY&json="),str.buf, website, my_callback);
     data_ready =0;
   }
   
