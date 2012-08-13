@@ -89,6 +89,8 @@ char website[] PROGMEM = "emoncms.org";
 //static byte hisip[] = { 213,138,101,177 };    // un-comment for posting to static IP server (no domain name)            
 
 const int redLED = 6;                     // NanodeRF RED indicator LED
+//const int redLED = 17;  		  // Open Kontrol Gateway LED indicator
+
 const int greenLED = 5;                   // NanodeRF GREEN indicator LED
 
 int ethernet_error = 0;                   // Etherent (controller/DHCP) error flag
@@ -117,7 +119,8 @@ void setup () {
   Serial.begin(9600);
   Serial.println("\n[webClient]");
 
-  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) {
+  //if (ether.begin(sizeof Ethernet::buffer, mymac, 10) == 0) {	//for use with Open Kontrol Gateway 
+  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) {	//for use with NanodeRF
     Serial.println( "Failed to access Ethernet controller");
     ethernet_error = 1;  
   }
@@ -127,7 +130,11 @@ void setup () {
   ethernet_requests = 0;
   ethernet_error=0;
   rf_error=0;
- 
+
+//For use with the modified JeeLib library to enable setting RFM12B SPI CS pin in the sketch. Download from: https://github.com/openenergymonitor/jeelib 
+//rf12_set_cs(9);  //Open Kontrol Gateway	
+//rf12_set_cs(10); //emonTx, emonGLCD, NanodeRF, JeeNode
+
   rf12_initialize(MYNODE, freq,group);
   last_rf = millis()-40000;                                       // setting lastRF back 40s is useful as it forces the ethernet code to run straight away
    

@@ -49,4 +49,3 @@ int get_reply_data(word off)
   }
   return 0;
 }
-
