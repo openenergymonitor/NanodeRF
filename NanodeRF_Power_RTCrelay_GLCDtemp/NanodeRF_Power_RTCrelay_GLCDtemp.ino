@@ -1,38 +1,32 @@
-/*                          _                                                      _      
-                           | |                                                    | |     
-  ___ _ __ ___   ___  _ __ | |__   __ _ ___  ___       _ __   __ _ _ __   ___   __| | ___ 
- / _ \ '_ ` _ \ / _ \| '_ \| '_ \ / _` / __|/ _ \     | '_ \ / _` | '_ \ / _ \ / _` |/ _ \
-|  __/ | | | | | (_) | | | | |_) | (_| \__ \  __/  _  | | | | (_| | | | | (_) | (_| |  __/
- \___|_| |_| |_|\___/|_| |_|_.__/ \__,_|___/\___| (_) |_| |_|\__,_|_| |_|\___/ \__,_|\___|
-                                                                                          
+/*
+  NanodeRF_Power_RTCrelay_GLCDtemp
+  
+  Relay's data recieved by emontx up to emoncms
+  Relay's data recieved by emonglcd up to emoncms
+  Decodes reply from server to set software real time clock
+  Relay's time data to emonglcd - and any other listening nodes.
+  Looks for 'ok' reply from request to verify data reached emoncms
+
+  emonBase Documentation: http://openenergymonitor.org/emon/emonbase
+
+  Authors: Trystan Lea and Glyn Hudson
+  Part of the: openenergymonitor.org project
+  Licenced under GNU GPL V3
+  http://openenergymonitor.org/emon/license
+
+  EtherCard Library by Jean-Claude Wippler and Andrew Lindsay
+  JeeLib Library by Jean-Claude Wippler
+
+  THIS SKETCH REQUIRES:
+  
+  Libraries in the standard arduino libraries folder:
+	- JeeLib		https://github.com/jcw/jeelib
+	- EtherCard		https://github.com/jcw/ethercard/
+
+  Other files in project directory (should appear in the arduino tabs above)
+	- decode_reply.ino
+	- dhcp_dns.ino
 */
-//--------------------------------------------------------------------------------------
-// Relay's data recieved by emontx up to emoncms
-// Relay's data recieved by emonglcd up to emoncms
-// Decodes reply from server to set software real time clock
-// Relay's time data to emonglcd - and any other listening nodes.
-// Looks for 'ok' reply from http request to verify data reached emoncms
-
-// emonBase Documentation: http://openenergymonitor.org/emon/emonbase
-
-// Authors: Trystan Lea and Glyn Hudson
-// Part of the: openenergymonitor.org project
-// Licenced under GNU GPL V3
-//http://openenergymonitor.org/emon/license
-
-// EtherCard Library by Jean-Claude Wippler and Andrew Lindsay
-// JeeLib Library by Jean-Claude Wippler
-//
-// THIS SKETCH REQUIRES:
-//
-// Libraries in the standard arduino libraries folder:
-//	- JeeLib		https://github.com/jcw/jeelib
-//	- EtherCard		https://github.com/jcw/ethercard/
-//
-// Other files in project directory (should appear in the arduino tabs above)
-//	- decode_reply.ino
-//	- dhcp_dns.ino
-//--------------------------------------------------------------------------------------
 
 #define DEBUG     //comment out to disable serial printing to increase long term stability 
 #define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
@@ -53,9 +47,6 @@ PayloadTX emontx;
 
 typedef struct { int temperature; } PayloadGLCD;
 PayloadGLCD emonglcd;
-
-typedef struct { int hour, mins;} PayloadBase;
-PayloadBase emonbase;
 //---------------------------------------------------
 
 //---------------------------------------------------------------------
@@ -97,7 +88,6 @@ char website[] PROGMEM = "emoncms.org";
 
 const int redLED = 6;                     // NanodeRF RED indicator LED
 //const int redLED = 17;  		  // Open Kontrol Gateway LED indicator
-
 const int greenLED = 5;                   // NanodeRF GREEN indicator LED
 
 int ethernet_error = 0;                   // Etherent (controller/DHCP) error flag
@@ -112,6 +102,7 @@ unsigned long last_rf;                    // Used to check for regular emontx da
 
 char line_buf[50];                        // Used to store line of http reply header
 
+unsigned long time60s = -50000;
 //**********************************************************************************************************************
 // SETUP
 //**********************************************************************************************************************
@@ -138,9 +129,9 @@ void setup () {
   ethernet_error=0;
   rf_error=0;
 
-//For use with the modified JeeLib library to enable setting RFM12B SPI CS pin in the sketch. Download from: https://github.com/openenergymonitor/jeelib 
-//rf12_set_cs(9);  //Open Kontrol Gateway	
-//rf12_set_cs(10); //emonTx, emonGLCD, NanodeRF, JeeNode
+  //For use with the modified JeeLib library to enable setting RFM12B SPI CS pin in the sketch. Download from: https://github.com/openenergymonitor/jeelib 
+  // rf12_set_cs(9);  //Open Kontrol Gateway	
+  // rf12_set_cs(10); //emonTx, emonGLCD, NanodeRF, JeeNode
  
   rf12_initialize(MYNODE, freq,group);
   last_rf = millis()-40000;                                       // setting lastRF back 40s is useful as it forces the ethernet code to run straight away
@@ -237,7 +228,7 @@ void loop () {
     
     str.print("}\0");  //  End of json string
     
-    Serial.print("2 "); Serial.println(str.buf); // print to serial json string
+    Serial.print("Data sent: "); Serial.println(str.buf); // print to serial json string
 
     // Example of posting to emoncms v3 demo account goto http://vis.openenergymonitor.org/emoncms3 
     // and login with sandbox:sandbox
@@ -249,6 +240,12 @@ void loop () {
   
   if (ethernet_requests > 10) delay(10000); // Reset the nanode if more than 10 request attempts have been tried without a reply
 
+  if ((millis()-time60s)>60000)
+  {
+    time60s = millis();                                                 // reset lastRF timer
+    Serial.println("Time request sent");
+    ether.browseUrl(PSTR("/time/local.json?apikey=YOURAPIKEY"),str.buf, website, my_callback);
+  }
 }
 //**********************************************************************************************************************
 
@@ -257,38 +254,30 @@ void loop () {
 // recieve reply and decode
 //-----------------------------------------------------------------------------------
 static void my_callback (byte status, word off, word len) {
+  int lsize =   get_reply_data(off);
   
-  get_header_line(2,off);      // Get the date and time from the header
-  Serial.print("ok recv from server | ");    // Print out the date and time
-  Serial.println(line_buf);    // Print out the date and time
-  
-  // Decode date time string to get integers for hour, min, sec, day
-  // We just search for the characters and hope they are in the right place
-  char val[1];
-  val[0] = line_buf[23]; val[1] = line_buf[24];
-  int hour = atoi(val);
-  val[0] = line_buf[26]; val[1] = line_buf[27];
-  int mins = atoi(val);
-  val[0] = line_buf[29]; val[1] = line_buf[30];
-  int sec = atoi(val);
-  val[0] = line_buf[11]; val[1] = line_buf[12];
-  int day = atoi(val);
-    
-  if (hour>0 || mins>0 || sec>0) {  //don't send all zeros, happens when server failes to returns reponce to avoide GLCD getting mistakenly set to midnight
-	emonbase.hour = hour;              //add current date and time to payload ready to be sent to emonGLCD
-  	emonbase.mins = mins;
+  if (strcmp(line_buf,"ok")==0)
+  {
+    Serial.println("OK recieved"); ethernet_requests = 0; ethernet_error = 0;
   }
-  //-----------------------------------------------------------------------------
-  
-  delay(100);
-  
-  // Send time data
-  int i = 0; while (!rf12_canSend() && i<10) {rf12_recvDone(); i++;}    // if can send - exit if it gets stuck, as it seems too
-  rf12_sendStart(0, &emonbase, sizeof emonbase);                        // send payload
-  rf12_sendWait(0);
-  
-  Serial.println("time sent to emonGLCD");
-  
-  get_reply_data(off);
-  if (strcmp(line_buf,"ok")) {ethernet_requests = 0; ethernet_error = 0;}  // check for ok reply from emoncms to verify data post request
+  else if(line_buf[0]=='t')
+  {
+    Serial.print("Time: ");
+    Serial.println(line_buf);
+    
+    char tmp[] = {line_buf[1],line_buf[2]};
+    byte hour = atoi(tmp);
+    tmp[0] = line_buf[4]; tmp[1] = line_buf[5];
+    byte minute = atoi(tmp);
+    tmp[0] = line_buf[7]; tmp[1] = line_buf[8];
+    byte second = atoi(tmp);
+
+    if (hour>0 || minute>0 || second>0) 
+    {  
+      char data[] = {'t',hour,minute,second};
+      int i = 0; while (!rf12_canSend() && i<10) {rf12_recvDone(); i++;}
+      rf12_sendStart(0, data, sizeof data);
+      rf12_sendWait(0);
+    }
+  }
 }
