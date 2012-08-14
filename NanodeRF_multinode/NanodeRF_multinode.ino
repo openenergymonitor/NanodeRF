@@ -34,8 +34,8 @@
 #include <avr/wdt.h>
 
 #define MYNODE 15            
-#define freq RF12_433MHZ     // frequency
-#define group 210            // network group 
+#define freq RF12_868MHZ     // frequency
+#define group 1            // network group 
 
 //---------------------------------------------------------------------
 // The PacketBuffer class is used to generate the json string that is send via ethernet - JeeLabs
@@ -196,7 +196,7 @@ void loop () {
     // Example of posting to emoncms.org http://emoncms.org 
     // To point to your account just enter your WRITE APIKEY 
     ethernet_requests ++;
-    ether.browseUrl(PSTR("/api/post.json?apikey=YOURAPIKEY"),str.buf, website, my_callback);
+    ether.browseUrl(PSTR("/api/post.json?apikey=2bda37d53b1120ed34d61e78f037512d"),str.buf, website, my_callback);
     data_ready =0;
   }
   
@@ -206,7 +206,7 @@ void loop () {
   {
     time60s = millis();                                                 // reset lastRF timer
     Serial.println("Time request sent");
-    ether.browseUrl(PSTR("/time/local.json?apikey=YOURAPIKEY"),str.buf, website, my_callback);
+    ether.browseUrl(PSTR("/time/local.json?apikey=2bda37d53b1120ed34d61e78f037512d"),str.buf, website, my_callback);
   }
 }
 //**********************************************************************************************************************
