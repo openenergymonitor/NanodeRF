@@ -75,16 +75,29 @@ PacketBuffer str;
 //--------------------------------------------------------------------------
 #include <EtherCard.h>		//https://github.com/jcw/ethercard 
 
+
 // ethernet interface mac address, must be unique on the LAN
 static byte mymac[] = { 0x42,0x31,0x42,0x21,0x30,0x31 };
 
+// 1) Set this to the domain name of your hosted emoncms - leave blank if posting to IP address 
+char website[] PROGMEM = "emoncms.org";
+
+// or if your posting to a static IP server:
+static byte hisip[] = { 192,168,1,10 };
+
+// change to true if you would like the sketch to use hisip
+boolean use_hisip = false;  
+
+// 2) If your emoncms install is in a subdirectory add details here i.e "/emoncms3"
+char basedir[] = "";
+
+// 3) Set to your account write apikey 
+char apikey[] = "YOURAPIKEY";
+
+
 //IP address of remote sever, only needed when posting to a server that has not got a dns domain name (staticIP e.g local server) 
 byte Ethernet::buffer[700];
-static uint32_t timer;
-
-//Domain name of remote webserver - leave blank if posting to IP address 
-char website[] PROGMEM = "emoncms.org";
-//static byte hisip[] = { 213,138,101,177 };    // un-comment for posting to static IP server (no domain name)            
+static uint32_t timer;         
 
 const int redLED = 6;                     // NanodeRF RED indicator LED
 //const int redLED = 17;  		  // Open Kontrol Gateway LED indicator
@@ -177,8 +190,10 @@ void loop () {
                                
           // JSON creation: JSON sent are of the format: {key1:value1,key2:value2} and so on
           
-          str.reset();                                                   // Reset json string      
-          str.print("{rf_fail:0");                                       // RF recieved so no failure
+          str.reset();          // Reset json string      
+          str.print(basedir); str.print("/api/post.json?");
+          str.print("apikey="); str.print(apikey);
+          str.print("&json={rf_fail:0");                                       // RF recieved so no failure
           str.print(",power1:");        str.print(emontx.power1);        // Add power reading
           str.print(",power2:");        str.print(emontx.power2);        // Add power reading
           str.print(",power3:");        str.print(emontx.power3);        // Add power reading
@@ -206,7 +221,9 @@ void loop () {
   {
     last_rf = millis();                                                 // reset lastRF timer
     str.reset();                                                        // reset json string
-    str.print("{rf_fail:1");                                            // No RF received in 30 seconds so send failure 
+    str.print(basedir); str.print("/api/post.json?");
+    str.print("apikey="); str.print(apikey);
+    str.print("&json={rf_fail:1");                                            // No RF received in 30 seconds so send failure 
     data_ready = 1;                                                     // Ok, data is ready
     rf_error=1;
   }
@@ -234,7 +251,7 @@ void loop () {
     // and login with sandbox:sandbox
     // To point to your account just enter your WRITE APIKEY 
     ethernet_requests ++;
-    ether.browseUrl(PSTR("/api/post.json?apikey=YOURAPIKEY&json="),str.buf, website, my_callback);
+    ether.browseUrl(PSTR(""),str.buf, website, my_callback);
     data_ready =0;
   }
   
@@ -243,8 +260,10 @@ void loop () {
   if ((millis()-time60s)>60000)
   {
     time60s = millis();                                                 // reset lastRF timer
+    str.reset();
+    str.print(basedir); str.print("/time/local.json?"); str.print("apikey="); str.print(apikey);
     Serial.println("Time request sent");
-    ether.browseUrl(PSTR("/time/local.json?apikey=YOURAPIKEY"),str.buf, website, my_callback);
+    ether.browseUrl(PSTR(""),str.buf, website, my_callback);
   }
 }
 //**********************************************************************************************************************

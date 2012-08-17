@@ -31,8 +31,13 @@ void dhcp_dns()
       static byte dnsip[] = {8,8,8,8};  
       ether.copyIp(ether.dnsip, dnsip);
       ether.printIp("DNS: ", ether.dnsip);
-      //ether.copyIp(ether.hisip, hisip);                             // un-comment for posting to static IP server (no domain name)
-      //dns_status = 1;                                               // un-comment for posting to static IP server (no domain name)            
+      
+      if (use_hisip==true)
+      {
+        ether.copyIp(ether.hisip, hisip);
+        dns_status = 1;          
+      }
+      
     } else { ethernet_error = 1; }  
   }
   
