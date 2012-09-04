@@ -1,25 +1,26 @@
 /*
-  The first task of the base station is to recieve data packets from the wireless nodes.
+  The first task of the base station is to receive data packets from the wireless nodes.
   
-  This example shows the simplest way to recieve packets.
+  This example shows the simplest way to receive packets it uses a struct: "a structured record
+  type that aggregates a fixed set of labelled objects, possibly of different types, into a single object" - Wikipedia
   
-  To work the basestation needs to know the structure of the data as set on the emontx.
-  
-  Which means that any addition of variables on a sensor node, or any addition of sensor
-  nodes requires reprogramming of the basestation. Depending on your needs this might be 
-  fine, however the next example shows a method that is flexible for any number of variables
-  as long as the structure is a series of integers.
+  This struct is used to tell the program how to extract individual elements from the packet data received.
+  It tells the program that the first variable is an integer or second could be a float for example.
+  It requires that the same struct definition is used on the transmitting node.
 */
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 
-typedef struct { int power1, power2, power3, voltage; } PayloadTX;
+// Define the data structure of the packet to be recieved 
+typedef struct { int power, voltage; } PayloadTX;
+
+// Create a variable to hold the received data of the defined structure .
 PayloadTX emontx;
 
 void setup () 
 {
   Serial.begin(9600);
-  Serial.println("EmonBase example 01");
+  Serial.println("01 fixed packets");
   rf12_initialize(15,RF12_433MHZ,210); // NodeID, Frequency, Group
 }
 
@@ -31,8 +32,13 @@ void loop ()
     
     if (node_id == 10)                 
     {
+      // The packet data is contained in rf12_data, the *(PayloadTX*) part tells the compiler 
+      // what the format of the data is so that it can be copied correctly
       emontx = *(PayloadTX*) rf12_data;
-      Serial.println(emontx.power1);
+
+      Serial.print(emontx.power);
+      Serial.print(' ');
+      Serial.println(emontx.voltage);
     }
   }
 }
