@@ -7,6 +7,8 @@
   This struct is used to tell the program how to extract individual elements from the packet data received.
   It tells the program that the first variable is an integer or second could be a float for example.
   It requires that the same struct definition is used on the transmitting node.
+  
+  Use the emonTxFirmware > Guide > g_TransmittingData example to send data to be recieved by this sketch.
 
   -----------------------------------------
   Part of the openenergymonitor.org project
