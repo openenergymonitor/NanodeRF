@@ -12,6 +12,10 @@
   DNS is where we ask a Domain name server for the ip address of the server we want to send data to:
   the domain name emoncms.org is linked to the ip address 213.138.101.177
   Using DNS Lookup we can save having to remember these hard to remember strings of numbers. 
+
+  -----------------------------------------
+  Part of the openenergymonitor.org project
+  Licence: GNU GPL V3
 */
 
 #include <EtherCard.h>

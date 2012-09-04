@@ -1,7 +1,17 @@
 /*
-  A basic web client demo sending test data to emoncms
+  This example is the barebones form of the NanodeRF_multinode example
   
-  Features: DCHP and DNS Lookup
+  It combines the c_BasicWebClient example with the d_PacketBuffer and the b_MultiNode example
+  
+  It uses the code detailed in the b_MultiNode example to recieve the RF data packet.
+  The d_PacketBuffer code to construct a CSV string ready to be sent to emoncms
+  and c_BasicWebClient to sent the request.
+  
+  You will need to put in your write api key on line 85
+  
+  -----------------------------------------
+  Part of the openenergymonitor.org project
+  Licence: GNU GPL V3
 */
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
@@ -36,7 +46,7 @@ char website[] PROGMEM = "emoncms.org";
 void setup () 
 {
   Serial.begin(9600);
-  Serial.println("Example 03");
+  Serial.println("05 - Basic MultiNode Web Client);
 
   if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) 
     Serial.println( "Failed to access Ethernet controller");
@@ -76,7 +86,7 @@ void loop ()
 
     str.print("\0");  //  End of json string    
     Serial.print("Data sent: "); Serial.println(str.buf);
-    ether.browseUrl(PSTR("/api/post?apikey=256977f2fd55691981af23d9473efa8f"),str.buf, website, 0);
+    ether.browseUrl(PSTR("/api/post?apikey=YOURAPIKEY"),str.buf, website, 0);
   }
 
 }

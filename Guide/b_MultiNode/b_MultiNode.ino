@@ -20,7 +20,10 @@
   The idea is to just relay the data to emoncms where it can be identified and organised there
   rather than on the emonbase. Making it possible to have a standard sketch on the base station
   that does not need updating every time variables are added to a node or an additional node is added.
-  
+
+  -----------------------------------------
+  Part of the openenergymonitor.org project
+  Licence: GNU GPL V3 
 */
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib

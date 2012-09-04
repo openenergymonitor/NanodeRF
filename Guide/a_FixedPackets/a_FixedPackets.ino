@@ -7,6 +7,10 @@
   This struct is used to tell the program how to extract individual elements from the packet data received.
   It tells the program that the first variable is an integer or second could be a float for example.
   It requires that the same struct definition is used on the transmitting node.
+
+  -----------------------------------------
+  Part of the openenergymonitor.org project
+  Licence: GNU GPL V3
 */
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib

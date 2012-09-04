@@ -7,7 +7,11 @@
   It uses the PacketBuffer class written by Jean Claude Wippler of JeeLabs.org: http://jeelabs.org/2010/09/29/sending-strings-in-packets/
   which makes it easy to fill a buffer with string data - that can then be sent in the URL request.
   
-  The PacketBuffer class makes use of the arduino print class.  
+  The PacketBuffer class makes use of the arduino print class. 
+
+  -----------------------------------------
+  Part of the openenergymonitor.org project
+  Licence: GNU GPL V3 
 */
 
 class v : public Print {
@@ -31,7 +35,7 @@ PacketBuffer str;
 void setup () 
 {
   Serial.begin(9600);
-  Serial.println("d_PacketBuffer");
+  Serial.println("04 - PacketBuffer");
   
   str.reset();
   str.print("{power1:");  str.print(252.6);
