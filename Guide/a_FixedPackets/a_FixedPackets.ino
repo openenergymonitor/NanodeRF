@@ -17,7 +17,7 @@
 
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 
-// Define the data structure of the packet to be recieved 
+// Define the data structure of the packet to be received 
 typedef struct { int power, voltage; } PayloadTX;
 
 // Create a variable to hold the received data of the defined structure .

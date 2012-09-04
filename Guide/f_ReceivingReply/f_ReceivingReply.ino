@@ -2,8 +2,8 @@
   This last example details how to receive and decode a reply from the server.
   
   It can be used to fetch the time from the server or to get any data from the server.
-  It could form the basis for an internet actived lighting or even a heating system.
-  Where the basestation polls the server periodically asking if the user has requested
+  It could form the basis for an internet activated lighting or even a heating system.
+  where the basestation polls the server periodically asking if the user has requested
   a light to be on etc.
   
   As in the BasicWebClient example we send a request using:

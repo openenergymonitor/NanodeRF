@@ -14,7 +14,7 @@
   Licence: GNU GPL V3 
 */
 
-class v : public Print {
+class PacketBuffer : public Print {
 public:
     PacketBuffer () : fill (0) {}
     const char* buffer() { return buf; }
@@ -36,7 +36,10 @@ void setup ()
 {
   Serial.begin(9600);
   Serial.println("04 - PacketBuffer");
-  
+}
+
+void loop () 
+{ 
   str.reset();
   str.print("{power1:");  str.print(252.6);
   str.print(",power2:");  str.print(3200);
@@ -44,6 +47,5 @@ void setup ()
   str.print("}\0");
   
   Serial.println(str.buf);
+  delay(1000);
 }
-
-void loop () { }

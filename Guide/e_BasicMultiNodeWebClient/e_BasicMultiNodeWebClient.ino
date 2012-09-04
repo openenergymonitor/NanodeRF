@@ -3,9 +3,9 @@
   
   It combines the c_BasicWebClient example with the d_PacketBuffer and the b_MultiNode example
   
-  It uses the code detailed in the b_MultiNode example to recieve the RF data packet.
+  It uses the code detailed in the b_MultiNode example to receive the RF data packet.
   The d_PacketBuffer code to construct a CSV string ready to be sent to emoncms
-  and c_BasicWebClient to sent the request.
+  and c_BasicWebClient to send the request.
   
   You will need to put in your write api key on line 85
   
@@ -46,7 +46,7 @@ char website[] PROGMEM = "emoncms.org";
 void setup () 
 {
   Serial.begin(9600);
-  Serial.println("05 - Basic MultiNode Web Client);
+  Serial.println("05 - Basic MultiNode Web Client");
 
   if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) 
     Serial.println( "Failed to access Ethernet controller");
