@@ -1,8 +1,16 @@
 /*
   The Packet Buffer
+  
+  In the last example (BasicWebClient) we sent a semi-json like string of test data: {power:252.4,temperature:15.4}. 
+  This example details how we can construct this string dynamically - so that the values can change.
+  
+  It uses the PacketBuffer class written by Jean Claude Wippler of JeeLabs.org: http://jeelabs.org/2010/09/29/sending-strings-in-packets/
+  which makes it easy to fill a buffer with string data - that can then be sent in the URL request.
+  
+  The PacketBuffer class makes use of the arduino print class.  
 */
 
-class PacketBuffer : public Print {
+class v : public Print {
 public:
     PacketBuffer () : fill (0) {}
     const char* buffer() { return buf; }
