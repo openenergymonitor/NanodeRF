@@ -1,7 +1,17 @@
 /*
-  A basic web client demo sending test data to emoncms
+  This is a basic web client demo sending test data to emoncms
+  It sends a couple of example variables in a semi-json like format: {power:252.4,temperature:15.4}
   
-  Features: DCHP and DNS Lookup
+  Try creating an account on emoncms.org then get the write api key and enter in line 51 replacing
+  the text YOURAPIKEY.
+  
+  This example features both DCHP and DNS Lookup.
+  
+  DHCP is where we ask the router for an ip address.
+  
+  DNS is where we ask a Domain name server for the ip address of the server we want to send data to:
+  the domain name emoncms.org is linked to the ip address 213.138.101.177
+  Using DNS Lookup we can save having to remember these hard to remember strings of numbers. 
 */
 
 #include <EtherCard.h>
@@ -17,10 +27,12 @@ char website[] PROGMEM = "emoncms.org";
 void setup () 
 {
   Serial.begin(9600);
-  Serial.println("Example 03");
+  Serial.println("03 - Basic Web Client");
 
   if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) 
     Serial.println( "Failed to access Ethernet controller");
+    
+  // DHCP Setup
   if (!ether.dhcpSetup())
     Serial.println("DHCP failed");
 
@@ -28,6 +40,7 @@ void setup ()
   ether.printIp("GW:  ", ether.gwip);  
   ether.printIp("DNS: ", ether.dnsip);  
 
+  // DNS Setup
   if (!ether.dnsLookup(website))
     Serial.println("DNS failed");
     
@@ -40,6 +53,8 @@ void loop () {
   if ((millis()-timer)>5000) {
     timer = millis();
     Serial.println("Request sent");
-    ether.browseUrl(PSTR("/api/post.json?apikey=256977f2fd55691981af23d9473efa8f&json="), "{power:252.4,temperature:15.4}", website, 0);
+    
+    // Send some test data to the server:
+    ether.browseUrl(PSTR("/api/post.json?apikey=YOURAPIKEY&json="), "{power:252.4,temperature:15.4}", website, 0);
   }
 }
