@@ -36,6 +36,7 @@ void loop ()
   {
     int node_id = (rf12_hdr & 0x1F);
     
+    // Emontx node id is set to 10 
     if (node_id == 10)                 
     {
       // The packet data is contained in rf12_data, the *(PayloadTX*) part tells the compiler 
