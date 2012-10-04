@@ -283,7 +283,7 @@ static void my_callback (byte status, word off, word len) {
     Serial.print("Time: ");
     Serial.println(line_buf);
     
-    char tmp[] = {line_buf[1],line_buf[2]};
+    char tmp[] = {line_buf[1],line_buf[2],0};
     byte hour = atoi(tmp);
     tmp[0] = line_buf[4]; tmp[1] = line_buf[5];
     byte minute = atoi(tmp);
