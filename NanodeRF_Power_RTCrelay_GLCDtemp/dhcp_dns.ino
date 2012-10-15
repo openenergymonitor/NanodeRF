@@ -7,7 +7,7 @@ void dhcp_dns()
   // Putting DHCP setup and DNS lookup in the main loop allows for: 
   // powering nanode before ethernet is connected
   //-----------------------------------------------------------------------------------
-  if (!ether.dhcpValid()) dhcp_status = 0;    // if dhcp expired start request for new lease by changing status
+  if (!ether.dhcpSetup()) dhcp_status = 0;    // if dhcp expired start request for new lease by changing status
   
   if (!dhcp_status){
     
@@ -38,7 +38,7 @@ void dhcp_dns()
         dns_status = 1;          
       }
       
-    } else { ethernet_error = 1; }  
+    } else { ethernet_error = 1; Serial.println("DHCP failed");  }  
   }
   
   //-----------------------------------------------------------------------------------
