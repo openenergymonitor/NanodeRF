@@ -37,7 +37,7 @@ The multinode firmware is the most flexible firmware for posting data up to emon
 This firmware was the standard firmware up until the addition of the multinode example. It's build specifically for use with one emontx and one emonglcd. One of its advantages is that it constructs a nice key:value pair json string to be sent to emoncms, which makes the emoncms inputs appear with the names: power1, power2, power3, voltage and so on. The disadvantage with this sketch is that is requires reprogramming if you want to add a new node or add new variables.
 
 * **NanodeRF_Cosm**
-Receive data from emonTx via RFM12B wireless and post to Cosum. Just insert your Cosm feed ID and API Key. Thanks to Roger James for this contribution. See forum thread for discussion: http://openenergymonitor.org/emon/node/376
+Receive data from emonTx via RFM12B wireless and post to Cosm. Just insert your Cosm feed ID and API Key. Thanks to Roger James for this contribution. See forum thread for discussion: http://openenergymonitor.org/emon/node/376
 
 ## Documentation Links:
 * emonBase :http://openenergymonitor.org/emon/emonbase
