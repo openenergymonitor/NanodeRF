@@ -78,6 +78,8 @@ unsigned long start_time = 0;
 byte ni = 0;
 boolean reply_recieved = true;
 
+byte ethernet_requests = 0;
+
 void setup () {
   Serial.begin(9600); 
   Serial.println(freeMemory());
@@ -112,6 +114,8 @@ void setup () {
   #ifdef UNO
   wdt_enable(WDTO_8S); 
   #endif;
+  
+  ethernet_requests = 0;
   
   str.print("[");
 }
@@ -174,6 +178,7 @@ void loop () {
         Serial.print(str.buf);
     
         ether.browseUrl(PSTR("/input/bulk.json?apikey=YOURAPIKEY&data=") ,str.buf, website, data_callback);
+        ethernet_requests++;
       }
       else
       {
@@ -187,6 +192,8 @@ void loop () {
       ni = 0; 
     }
   }
+  
+  if (ethernet_requests>10) delay(10000);
 
 }
 
@@ -195,4 +202,8 @@ static void data_callback (byte status, word off, word len)
   reply_recieved = true;
   int lsize =   get_reply_data(off);
   Serial.println(line_buf);
+  if (strcmp(line_buf,"ok")==0)
+  {
+    ethernet_requests = 0;
+  }
 }
