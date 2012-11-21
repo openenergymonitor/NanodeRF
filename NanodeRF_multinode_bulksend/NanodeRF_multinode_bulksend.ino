@@ -2,9 +2,9 @@
   NanodeRF_multinode_bulksend
 
   Queue data recieved from wireless nodes and send all packets to emoncms
-  in one connection every 20s, see blog post for more information.
+  in one connection every 15s, see blog post for more information.
   
-  ENTER YOUR APIKEY ON LINE 178, AND SET WIRELESS NODE ID, GROUP AND FREQUENCY
+  ENTER YOUR APIKEY ON LINE 190, AND SET WIRELESS NODE ID, GROUP AND FREQUENCY
 
   Authors: Trystan Lea
   Part of the: openenergymonitor.org project
@@ -24,7 +24,9 @@
 	- decode_reply.ino
 */
 
-#include <MemoryFree.h>
+// FORMAT ERROR??
+// If you get format error replies, you may be running out of memory 
+// try decrease the time between posts so that less packets are queued
 
 #define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
 
@@ -51,7 +53,7 @@ public:
     virtual size_t write (uint8_t ch)
         { if (fill < sizeof buf) buf[fill++] = ch; }
     byte fill;
-    char buf[400];
+    char buf[450]; // QUEUE BUFFER SIZE, TRY CHANGING THIS IF YOU GET STABILITY PROBLEMS.
     private:
 };
 PacketBuffer str;
@@ -75,16 +77,15 @@ char line_buf[50];                        // Used to store line of http reply he
 
 unsigned long time10s = 0;
 unsigned long start_time = 0;
+unsigned long replytimer = 0;
 byte ni = 0;
 boolean reply_recieved = true;
 
 byte ethernet_requests = 0;
 
 void setup () {
-  Serial.begin(9600); 
-  Serial.println(freeMemory());
-  
-  Serial.println("\n[webClient]");
+  Serial.begin(9600);
+  Serial.println("NanodeRF_multinode_bulksend");
 
   //if (ether.begin(sizeof Ethernet::buffer, mymac, 10) == 0) {	//for use with Open Kontrol Gateway 
   if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) {	//for use with NanodeRF
@@ -153,6 +154,7 @@ void loop () {
         str.print(num);
       }
       str.print("]");
+      
     }
   }
 
@@ -161,35 +163,37 @@ void loop () {
   //-----------------------------------------------------------------------------------------------------------------
   ether.packetLoop(ether.packetReceive());
   
-  if ((millis()-time10s)>20000)
+  if ((millis()-replytimer)>2000 && !reply_recieved)
+  {
+    Serial.println("No reply continue anyway");
+    reply_recieved = true; ni = 0;
+  }
+  
+  if ((millis()-time10s)>15000)
   {
     time10s = millis();     // reset lastRF timer
 
-    if (reply_recieved == true)
+    if (ni>0)
     {
-      if (ni>0)
-      {
-        ni = 0; reply_recieved = false;
+      reply_recieved = false;
         
-        str.print("]");
-        str.print("\0");  //  End of json string
+      str.print("]");
+      str.print("\0");  //  End of json string
     
-        Serial.print("SENDING: ");
-        Serial.print(str.buf);
+      Serial.print("SENDING: ");
+      Serial.print(ni); // print number of packets in queue
+      ni = 0;
+      
+      Serial.print(" ");
+      Serial.print(str.buf);
     
-        ether.browseUrl(PSTR("/input/bulk.json?apikey=YOURAPIKEY&data=") ,str.buf, website, data_callback);
-        ethernet_requests++;
-      }
-      else
-      {
-        Serial.println("NO DATA");
-      }
+      ether.browseUrl(PSTR("/input/bulk.json?apikey=YOURAPIKEY&data=") ,str.buf, website, data_callback);
+      ethernet_requests++;
+      replytimer = millis();
     }
     else
     {
-      Serial.println(" | NO REPLY");
-      reply_recieved = true;
-      ni = 0; 
+      Serial.println("NO DATA");
     }
   }
   
