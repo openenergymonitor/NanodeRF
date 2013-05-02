@@ -52,7 +52,7 @@ void loop ()
     // Go throught the packet 2 bytes at a time
     for (byte i=0; i<n; i+=2)
     {
-      // Create an intgeer from each block of two bytes (using bitwize math)
+      // Create an integer from each block of two bytes (using bitwise math)
       int num = ((unsigned char)rf12_data[i+1] << 8 | (unsigned char)rf12_data[i]);
       
       // Print the output as CSV
