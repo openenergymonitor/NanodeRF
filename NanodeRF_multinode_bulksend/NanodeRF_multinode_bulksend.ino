@@ -34,7 +34,7 @@
 #include <avr/wdt.h>
 
 #define MYNODE 1            
-#define freq RF12_868MHZ     // frequency
+#define RF_freq RF12_868MHZ     // frequency
 #define group 1            // network group
 
 //---------------------------------------------------------------------
@@ -110,7 +110,7 @@ void setup () {
   // rf12_set_cs(9);  //Open Kontrol Gateway	
   // rf12_set_cs(10); //emonTx, emonGLCD, NanodeRF, JeeNode
 
-  rf12_initialize(MYNODE, freq,group);
+  rf12_initialize(MYNODE, RF_freq,group);
 
   #ifdef UNO
   wdt_enable(WDTO_8S); 
