@@ -4,11 +4,11 @@ Builds on JeeLabs and EtherCard software. Thanks to JCW and Andrew Lindsay
 
 ## To run these examples you will need:
 * Arduino 1.x:				http://arduino.cc/en/Main/Software
-* EtherCard: 					https://github.com/jcw/ethercard
-* JeeLib: 					   https://github.com/jcw/jeelib
-* RTClib:         https://github.com/jcw/                                                                                                   
+* EtherCard: 			        https://github.com/jcw/ethercard
+* JeeLib:                               Recommend older library snapshot: https://github.com/openenergymonitor/EtherCardOct2012
+* RTClib:                               https://github.com/jcw/                                                                                                   
 
-The is a collaboration between OpenEnergyMonitor.org and Nanode.eu (Ken Boak) 
+NnodeRF design has been a collaboration between OpenEnergyMonitor.org, Nanode.eu (Ken Boak) and Wicked Device.com
 
 This repo contains the firmware to allow a Nanodes equipped with a RFM12B breakout board or NanodeRF's with RFM12B onboard to received monitoring data from the emonTx and post the data online to emoncms.
 
