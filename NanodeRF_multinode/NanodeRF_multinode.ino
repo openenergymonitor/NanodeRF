@@ -195,6 +195,7 @@ void loop () {
     str.reset();                                                        // reset json string
     str.print(basedir); str.print("/api/post.json?");
     str.print("apikey="); str.print(apikey);
+    str.print("&node=");  str.print(MYNODE);                            // Add this line where MYNODE is the node no of the NanodeRF this sketch is uploaded to
     str.print("&json={rf_fail:1}\0");                                   // No RF received in 30 seconds so send failure 
     data_ready = 1;                                                     // Ok, data is ready
     rf_error=1;
