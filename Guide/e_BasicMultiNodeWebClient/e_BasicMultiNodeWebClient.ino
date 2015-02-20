@@ -14,6 +14,8 @@
   Licence: GNU GPL V3
 */
 
+#define RF69_COMPAT  0                                                // Set to 1 if using RFM69CW or 0 is using RFM12B
+
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 
 class PacketBuffer : public Print {

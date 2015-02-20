@@ -2,6 +2,7 @@
 // 2011-07-05 <jc@wippler.nl> http://opensource.org/licenses/mit-license.php
 
 #include <EtherCard.h>
+#define RF69_COMPAT  0                                                // Set to 1 if using RFM69CW or 0 is using RFM12B
 #include <JeeLib.h>
 
 #define REQUEST_RATE 5000 // milliseconds

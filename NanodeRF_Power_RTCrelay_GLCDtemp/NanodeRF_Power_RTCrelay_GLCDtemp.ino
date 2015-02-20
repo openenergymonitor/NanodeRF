@@ -29,7 +29,7 @@
 */
 
 #define UNO       //anti crash wachdog reset only works with Uno (optiboot) bootloader, comment out the line if using delianuova
-
+#define RF69_COMPAT  0                                                // Set to 1 if using RFM69CW or 0 is using RFM12B
 #include <JeeLib.h>	     //https://github.com/jcw/jeelib
 #include <avr/wdt.h>
 
