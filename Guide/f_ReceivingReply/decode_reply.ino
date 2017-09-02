@@ -1,6 +1,6 @@
 int get_reply_data(word off)
 {
-  memset(line_buf,NULL,sizeof(line_buf));
+  memset(line_buf,0,sizeof(line_buf));
   if (off != 0)
   {
     uint16_t pos = off;

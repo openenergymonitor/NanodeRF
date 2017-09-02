@@ -21,7 +21,7 @@ public:
     byte length() { return fill; }
     void reset()
     { 
-      memset(buf,NULL,sizeof(buf));
+      memset(buf,0,sizeof(buf));
       fill = 0; 
     }
     virtual size_t write (uint8_t ch)

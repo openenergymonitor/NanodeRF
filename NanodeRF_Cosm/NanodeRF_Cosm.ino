@@ -59,7 +59,7 @@ public:
     byte length() { return fill; }
     void reset()
     { 
-      memset(buf,NULL,sizeof(buf));
+      memset(buf,0,sizeof(buf));
       fill = 0; 
     }
     virtual size_t write (uint8_t ch)
@@ -83,7 +83,7 @@ byte Ethernet::buffer[700];
 static uint32_t timer;
 
 //Domain name of remote webserver - leave blank if posting to IP address 
-char website[] PROGMEM = "api.cosm.com";
+const char website[] PROGMEM = "api.cosm.com";
 
 const int redLED = 6;                     // NanodeRF RED indicator LED
 //const int redLED = 17;  		  // Open Kontrol Gateway LED indicator
@@ -117,7 +117,6 @@ void setup () {
   Serial.println("\n[webClient]");
 
   //if (ether.begin(sizeof Ethernet::buffer, mymac, 10) == 0) {	//for use with Open Kontrol Gateway 
-  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) {	//for use with NanodeRF
   if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) {
     Serial.println( "Failed to access Ethernet controller");
     ethernet_error = 1;  
@@ -140,9 +139,9 @@ void setup () {
  
   #ifdef UNO
   wdt_enable(WDTO_8S); 
-  #endif;
+  #endif
 }
-  }
+
 
 //**********************************************************************************************************************
 // LOOP
@@ -258,13 +257,13 @@ static void my_callback (byte status, word off, word len) {
     // We just search for the characters and hope they are in the right place
     char val[1];
     val[0] = line_buf[23]; val[1] = line_buf[24];
-    int hour = atoi(val);
+    char hour = atoi(val);
     val[0] = line_buf[26]; val[1] = line_buf[27];
-    int minute = atoi(val);
+    char minute = atoi(val);
     val[0] = line_buf[29]; val[1] = line_buf[30];
-    int second = atoi(val);
+    char second = atoi(val);
     val[0] = line_buf[11]; val[1] = line_buf[12];
-    int day = atoi(val);
+    char day = atoi(val);
     
     // Don't send all zeros, happens when server failes to returns reponce to avoide GLCD getting mistakenly set to midnight
     if (hour>0 || minute>0 || second>0) 

@@ -46,7 +46,7 @@ public:
     byte length() { return fill; }
     void reset()
     { 
-      memset(buf,NULL,sizeof(buf));
+      memset(buf,0,sizeof(buf));
       fill = 0; 
     }
     virtual size_t write (uint8_t ch)
@@ -68,7 +68,7 @@ PacketBuffer str;
 static byte mymac[] = { 0x42,0x31,0x42,0x21,0x30,0x31 };
 
 // 1) Set this to the domain name of your hosted emoncms - leave blank if posting to IP address 
-char website[] PROGMEM = "emoncms.org";
+const char website[] PROGMEM = "emoncms.org";
 
 // or if your posting to a static IP server:
 static byte hisip[] = { 192,168,1,10 };
@@ -118,7 +118,7 @@ void setup () {
   Serial.println("\n[webClient]");
 
   //if (ether.begin(sizeof Ethernet::buffer, mymac, 10) == 0) {	//for use with Open Kontrol Gateway 
-  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) {	//for use with NanodeRF
+  if (ether.begin(sizeof Ethernet::buffer, mymac,8) == 0) {	//for use with NanodeRF
     Serial.println( "Failed to access Ethernet controller");
     ethernet_error = 1;  
   }
@@ -140,7 +140,7 @@ void setup () {
  
   #ifdef UNO
   wdt_enable(WDTO_8S); 
-  #endif;
+  #endif
 }
 
 //**********************************************************************************************************************
@@ -247,11 +247,11 @@ static void my_callback (byte status, word off, word len) {
     Serial.println(line_buf);
     
     char tmp[] = {line_buf[1],line_buf[2],0};
-    byte hour = atoi(tmp);
+    char hour = atoi(tmp);
     tmp[0] = line_buf[4]; tmp[1] = line_buf[5];
-    byte minute = atoi(tmp);
+    char minute = atoi(tmp);
     tmp[0] = line_buf[7]; tmp[1] = line_buf[8];
-    byte second = atoi(tmp);
+    char second = atoi(tmp);
 
     if (hour>0 || minute>0 || second>0) 
     {  

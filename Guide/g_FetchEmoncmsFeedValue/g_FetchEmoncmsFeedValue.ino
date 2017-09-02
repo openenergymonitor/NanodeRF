@@ -18,7 +18,7 @@ static byte mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
 byte Ethernet::buffer[700];
 unsigned long timer;
 
-char website[] PROGMEM = "emoncms.org";
+const char website[] PROGMEM = "emoncms.org";
 
 // This is the char array that holds the reply data
 char line_buf[50];
@@ -34,7 +34,7 @@ void setup ()
   pinMode(redLED, OUTPUT); digitalWrite(redLED,HIGH);            
   pinMode(greenLED, OUTPUT); digitalWrite(greenLED,HIGH); 
 
-  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) 
+  if (ether.begin(sizeof Ethernet::buffer, mymac,8) == 0) 
     Serial.println( "Failed to access Ethernet controller");
   if (!ether.dhcpSetup())
     Serial.println("DHCP failed");

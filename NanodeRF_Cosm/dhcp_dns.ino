@@ -50,7 +50,7 @@ void dhcp_dns()
     
     #ifdef UNO
     wdt_enable(WDTO_8S);
-    #endif;
+    #endif
     
     Serial.print("DNS status: ");             // print
     Serial.println(dns_status);               // dns status

@@ -47,7 +47,7 @@ public:
     byte length() { return fill; }
     void reset()
     { 
-      memset(buf,NULL,sizeof(buf));
+      memset(buf,0,sizeof(buf));
       fill = 0; 
     }
     virtual size_t write (uint8_t ch)
@@ -67,7 +67,7 @@ PacketBuffer str;
 static byte mymac[] = { 0x42,0x31,0x42,0x21,0x30,0x31 };
 
 // 1) Set this to the domain name of your hosted emoncms - leave blank if posting to IP address 
-char website[] PROGMEM = "emoncms.org";
+const char website[] PROGMEM = "emoncms.org";
 
 //IP address of remote sever, only needed when posting to a server that has not got a dns domain name (staticIP e.g local server) 
 byte Ethernet::buffer[700];
@@ -88,7 +88,7 @@ void setup () {
   Serial.println("NanodeRF_multinode_bulksend");
 
   //if (ether.begin(sizeof Ethernet::buffer, mymac, 10) == 0) {	//for use with Open Kontrol Gateway 
-  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) {	//for use with NanodeRF
+  if (ether.begin(sizeof Ethernet::buffer, mymac, 8) == 0) {	//for use with NanodeRF
     Serial.println( "Failed to access Ethernet controller");
   }
   
@@ -114,7 +114,7 @@ void setup () {
 
   #ifdef UNO
   wdt_enable(WDTO_8S); 
-  #endif;
+  #endif
   
   ethernet_requests = 0;
   
