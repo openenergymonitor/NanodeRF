@@ -25,7 +25,7 @@ public:
     byte length() { return fill; }
     void reset()
     { 
-      memset(buf,NULL,sizeof(buf));
+      memset(buf,0,sizeof(buf));
       fill = 0; 
     }
     virtual size_t write (uint8_t ch)
@@ -43,14 +43,14 @@ static byte mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
 
 byte Ethernet::buffer[700];
 
-char website[] PROGMEM = "emoncms.org";
+const char website[] PROGMEM = "emoncms.org";
 
 void setup () 
 {
   Serial.begin(9600);
   Serial.println("05 - Basic MultiNode Web Client");
 
-  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) 
+  if (ether.begin(sizeof Ethernet::buffer, mymac, 8) == 0) 
     Serial.println( "Failed to access Ethernet controller");
   if (!ether.dhcpSetup())
     Serial.println("DHCP failed");

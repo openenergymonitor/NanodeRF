@@ -13,7 +13,7 @@ const int redLED=6;
 // ethernet interface mac address
 static byte mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
 // remote website name
-char website[] PROGMEM = "google.com";
+const char website[] PROGMEM = "google.com";
 
 byte Ethernet::buffer[700];
 static long timer;
@@ -46,7 +46,7 @@ digitalWrite(redLED, HIGH);
   Serial.begin(9600);
   Serial.println("\n[getDHCPandDNS]");
   
-  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0) 
+  if (ether.begin(sizeof Ethernet::buffer, mymac, 8) == 0) 
   {
     Serial.println( "Failed to access Ethernet controller");
     digitalWrite(redLED, LOW); 
